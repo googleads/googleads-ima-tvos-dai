@@ -1,0 +1,74 @@
+{
+  "additionalFilePaths" : [
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos/samples/dai/BasicExample/BUILD"
+  ],
+  "buildTargets" : [
+    "//googlemac/iPhone/InteractiveMediaAds/IMA/tvos/samples/dai/BasicExample:BasicExample"
+  ],
+  "optionSet" : {
+    "BazelBuildOptionsDebug" : {
+      "p" : "$(inherited)"
+    },
+    "BazelBuildOptionsRelease" : {
+      "p" : "$(inherited)"
+    },
+    "BazelBuildStartupOptionsDebug" : {
+      "p" : "$(inherited)"
+    },
+    "BazelBuildStartupOptionsRelease" : {
+      "p" : "$(inherited)"
+    },
+    "BuildActionPostActionScript" : {
+      "p" : "$(inherited)"
+    },
+    "BuildActionPreActionScript" : {
+      "p" : "$(inherited)"
+    },
+    "CommandlineArguments" : {
+      "p" : "$(inherited)"
+    },
+    "EnvironmentVariables" : {
+      "p" : "$(inherited)"
+    },
+    "LaunchActionPostActionScript" : {
+      "p" : "$(inherited)"
+    },
+    "LaunchActionPreActionScript" : {
+      "p" : "$(inherited)"
+    },
+    "ProjectGenerationPlatformConfiguration" : {
+      "p" : "tvos_x86_64"
+    },
+    "TestActionPostActionScript" : {
+      "p" : "$(inherited)"
+    },
+    "TestActionPreActionScript" : {
+      "p" : "$(inherited)"
+    }
+  },
+  "projectName" : "BasicExample",
+  "sourceFilters" : [
+    "googlemac/iPhone/InteractiveMediaAds/IMA/...",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/bridge",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/bridge/source",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/bridge/source/common",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/bridge/source/jscontext",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/bridge/source/jscontext/dom",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/bridge/source/jscontext/javascript",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/bridge/source/webview",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/source",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/source/API",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/source/Bridge",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/source/Common",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/source/Display",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/source/Factory",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/common/source/Signals",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos/release",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos/samples",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos/samples/dai",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos/samples/dai/BasicExample",
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos/samples/dai/BasicExample/app"
+  ]
+}

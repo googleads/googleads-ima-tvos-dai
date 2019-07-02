@@ -1,0 +1,14 @@
+{
+  "configDefaults" : {
+    "optionSet" : {
+      "ProjectGenerationPlatformConfiguration" : {
+        "p" : "tvos_x86_64"
+      }
+    }
+  },
+  "packages" : [
+    "googlemac/iPhone/InteractiveMediaAds/IMA/tvos/samples/dai/BasicExample"
+  ],
+  "projectName" : "BasicExample",
+  "workspaceRoot" : "../../../../../../../../.."
+}
