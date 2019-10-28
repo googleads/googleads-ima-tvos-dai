@@ -85,8 +85,8 @@ static NSString *const kBackupStreamURLString =
   // VOD request. Comment out the IMALiveStreamRequest above and uncomment this IMAVODStreamRequest
   // to switch from a livestream to a VOD stream.
   // IMAVODStreamRequest *request =
-  //     [[IMAVODStreamRequest alloc] initWithContentSourceId:kContentSourceID
-  //                                                  videoId:kVideoID
+  //     [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
+  //                                                  videoID:kVideoID
   //                                       adDisplayContainer:adDisplayContainer
   //                                             videoDisplay:videoDisplay];
   [self.adsLoader requestStreamWithRequest:request];
