@@ -72,6 +72,8 @@ static NSString *const kBackupStreamURLString =
   self.adContainerView = [[UIView alloc] init];
   [self.view addSubview:self.adContainerView];
   self.adContainerView.frame = self.view.bounds;
+  // Keep hidden initially, until an ad break.
+  self.adContainerView.hidden = YES;
 }
 
 - (void)requestStream {
@@ -134,13 +136,15 @@ static NSString *const kBackupStreamURLString =
       break;
     }
     case kIMAAdEvent_AD_BREAK_STARTED: {
-      // Prevent user seek through when an ad starts.
+      // Prevent user seek through when an ad starts and show the ad controls.
       self.playerViewController.requiresLinearPlayback = YES;
+      self.adContainerView.hidden = NO;
       break;
     }
     case kIMAAdEvent_AD_BREAK_ENDED: {
-      // Allow user seek through after an ad ends.
+      // Allow user seek through after an ad ends and hide the ad controls.
       self.playerViewController.requiresLinearPlayback = NO;
+      self.adContainerView.hidden = YES;
       break;
     }
     default:
