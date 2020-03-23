@@ -31,8 +31,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     streams = [
       LiveStream(name: "Live Stream", assetKey: "sN_IYUG8STe1ZzhIIE_ksA"),
-      VODStream(name: "VOD Stream", cmsID: "19463", videoID: "googleio-highlights"),
-      VODStream(name: "VOD Stream w/ Subtitles", cmsID: "19463", videoID: "tears-of-steel")
+      VODStream(name: "VOD Stream", cmsID: "2528370", videoID: "tears-of-steel")
     ]
 
     setUpTableView()
