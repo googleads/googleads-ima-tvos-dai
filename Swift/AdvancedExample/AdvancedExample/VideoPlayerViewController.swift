@@ -91,7 +91,7 @@ class VideoPlayerViewController:
     self.addChild(playerViewController!)
     playerViewController!.view.frame = self.view.bounds
     self.view.insertSubview(playerViewController!.view, at: 0)
-    playerViewController!.didMove(toParent:self)
+    playerViewController!.didMove(toParent: self)
   }
 
   func setupAdContainer() {
@@ -109,15 +109,17 @@ class VideoPlayerViewController:
     let adDisplayContainer = IMAAdDisplayContainer(adContainer: self.adContainerView)
     let request: IMAStreamRequest
     if let liveStream = self.stream as? LiveStream {
-      request = IMALiveStreamRequest(assetKey: liveStream.assetKey,
-                                     adDisplayContainer: adDisplayContainer,
-                                     videoDisplay: videoDisplay)
+      request = IMALiveStreamRequest(
+        assetKey: liveStream.assetKey,
+        adDisplayContainer: adDisplayContainer,
+        videoDisplay: videoDisplay)
       self.adsLoader!.requestStream(with: request)
     } else if let vodStream = self.stream as? VODStream {
-      request = IMAVODStreamRequest(contentSourceID: vodStream.cmsID,
-                                    videoID: vodStream.videoID,
-                                    adDisplayContainer: adDisplayContainer,
-                                    videoDisplay: videoDisplay)
+      request = IMAVODStreamRequest(
+        contentSourceID: vodStream.cmsID,
+        videoID: vodStream.videoID,
+        adDisplayContainer: adDisplayContainer,
+        videoDisplay: videoDisplay)
       self.adsLoader!.requestStream(with: request)
     } else {
       assertionFailure("Unknown stream type selected")
@@ -150,18 +152,19 @@ class VideoPlayerViewController:
     switch event.type {
     case IMAAdEventType.STARTED:
       // Log extended data.
-      let extendedAdPodInfo = String(format:"Showing ad %zd/%zd, bumper: %@, title: %@, "
-        + "description: %@, contentType:%@, pod index: %zd, "
-        + "time offset: %lf, max duration: %lf.",
-                                     event.ad.adPodInfo.adPosition,
-                                     event.ad.adPodInfo.totalAds,
-                                     event.ad.adPodInfo.isBumper ? "YES" : "NO",
-                                     event.ad.adTitle,
-                                     event.ad.adDescription,
-                                     event.ad.contentType,
-                                     event.ad.adPodInfo.podIndex,
-                                     event.ad.adPodInfo.timeOffset,
-                                     event.ad.adPodInfo.maxDuration)
+      let extendedAdPodInfo = String(
+        format: "Showing ad %zd/%zd, bumper: %@, title: %@, "
+          + "description: %@, contentType:%@, pod index: %zd, "
+          + "time offset: %lf, max duration: %lf.",
+        event.ad.adPodInfo.adPosition,
+        event.ad.adPodInfo.totalAds,
+        event.ad.adPodInfo.isBumper ? "YES" : "NO",
+        event.ad.adTitle,
+        event.ad.adDescription,
+        event.ad.contentType,
+        event.ad.adPodInfo.podIndex,
+        event.ad.adPodInfo.timeOffset,
+        event.ad.adPodInfo.maxDuration)
 
       print("\(extendedAdPodInfo)")
       break
@@ -184,9 +187,10 @@ class VideoPlayerViewController:
   func restoreFromSnapback() {
     if userSeekTime > 0.0 {
       let seekCMTime = CMTimeMakeWithSeconds(userSeekTime, preferredTimescale: 1)
-      playerViewController!.player!.seek(to: seekCMTime,
-                                        toleranceBefore: CMTime.zero,
-                                        toleranceAfter: CMTime.zero)
+      playerViewController!.player!.seek(
+        to: seekCMTime,
+        toleranceBefore: CMTime.zero,
+        toleranceAfter: CMTime.zero)
       self.userSeekTime = 0.0
     }
   }
@@ -201,7 +205,7 @@ class VideoPlayerViewController:
     _ playerViewController: AVPlayerViewController,
     timeToSeekAfterUserNavigatedFrom oldTime: CMTime,
     to targetTime: CMTime
-    ) -> CMTime {
+  ) -> CMTime {
     if let streamManager = self.streamManager {
       // perform snapback if user scrubs ahead of ad break
       let targetSeconds = CMTimeGetSeconds(targetTime)
@@ -223,7 +227,7 @@ class VideoPlayerViewController:
   func playerVideoDisplay(
     _ playerVideoDisplay: IMAAVPlayerVideoDisplay!,
     didLoad playerItem: AVPlayerItem!
-    ) {
+  ) {
     // load bookmark, if it exists (and we aren't playing a live stream)
     if let vodStream = stream as? VODStream {
       if vodStream.bookmark != 0 {

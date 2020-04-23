@@ -31,7 +31,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     streams = [
       LiveStream(name: "Live Stream", assetKey: "sN_IYUG8STe1ZzhIIE_ksA"),
-      VODStream(name: "VOD Stream", cmsID: "2528370", videoID: "tears-of-steel")
+      VODStream(name: "VOD Stream", cmsID: "2528370", videoID: "tears-of-steel"),
     ]
 
     setUpTableView()
@@ -40,7 +40,7 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
   func setUpTableView() {
     let width = (self.view.frame.width / 2) - 50
     let height = self.view.frame.height - 450
-    let tableFrame:CGRect = CGRect(x: 0, y: 120, width: width, height: height)
+    let tableFrame: CGRect = CGRect(x: 0, y: 120, width: width, height: height)
     tableView = UITableView(frame: tableFrame, style: .grouped)
     self.view.addSubview(tableView)
 

@@ -17,8 +17,8 @@
 /// Instances of the VODStream class store information and status for Video On Demand streams.
 /// Note that the bookmark property will be altered during playback, to store progress.
 class VODStream: Stream {
-  var cmsID:String? = nil
-  var videoID:String? = nil
+  var cmsID: String? = nil
+  var videoID: String? = nil
   var bookmark = 0.0
 
   init(name: String, cmsID: String, videoID: String, apiKey: String? = nil) {

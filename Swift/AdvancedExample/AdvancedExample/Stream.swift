@@ -17,8 +17,8 @@
 /// the Stream class defines a standard for storing information about a video stream that will be
 /// passed by reference. Different types of stream will be defined as subclasses of this base.
 class Stream {
-  var name:String? = nil
-  var apiKey:String? = nil
+  var name: String? = nil
+  var apiKey: String? = nil
 
   init(name: String, apiKey: String? = nil) {
     self.name = name

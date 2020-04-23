@@ -22,8 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(
     _: UIApplication,
-    didFinishLaunchingWithOptions launchOptions:[UIApplication.LaunchOptionsKey: Any]?
-    ) -> Bool {
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
     // Override point for customization after application launch.
     window = UIWindow(frame: UIScreen.main.bounds)
 
