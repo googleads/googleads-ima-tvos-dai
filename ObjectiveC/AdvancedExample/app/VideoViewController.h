@@ -1,5 +1,5 @@
 /**
- * Copyright 2020 Google LLC
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-@import AVFoundation;
-@import UIKit;
+#import <UIKit/UIKit.h>
 
-/// the Stream class defines a standard for storing information about a video stream that will be
-/// passed by reference. Different types of stream will be defined as subclasses of this base.
-@interface Stream : NSObject
+#import "Stream.h"
 
-@property(nonatomic, nonnull) NSString *name;
-@property(nonatomic, nullable) NSString *APIKey;
-
-- (instancetype) initWithName:(nonnull NSString *)name
-                       APIKey:(nullable NSString *)APIKey;
-
-- (instancetype)initWithName:(nonnull NSString *)name;
-
+@interface VideoViewController : UIViewController
+@property(nonatomic, nullable) Stream *stream;
 @end

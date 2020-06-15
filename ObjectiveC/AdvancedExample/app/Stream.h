@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-@import UIKit;
+#import <AVFoundation/AVFoundation.h>
+#import <UIKit/UIKit.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+/// the Stream class defines a standard for storing information about a video stream that will be
+/// passed by reference. Different types of stream will be defined as subclasses of this base.
+@interface Stream : NSObject
 
-@property(strong, nonatomic) UIWindow *window;
+@property(nonatomic, nonnull) NSString *name;
+@property(nonatomic, nullable) NSString *APIKey;
+
+- (instancetype) initWithName:(nonnull NSString *)name
+                       APIKey:(nullable NSString *)APIKey;
+
+- (instancetype)initWithName:(nonnull NSString *)name;
 
 @end

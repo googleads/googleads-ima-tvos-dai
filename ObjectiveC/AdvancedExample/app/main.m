@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
-#import "Stream.h"
+#import "AppDelegate.h"
 
-@interface VideoViewController : UIViewController
-@property(nonatomic, nullable) Stream *stream;
-@end
+int main(int argc, char* argv[]) {
+  @autoreleasepool {
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+  }
+}

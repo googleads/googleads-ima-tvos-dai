@@ -16,15 +16,14 @@
 
 #import "VideoViewController.h"
 
+#import <AVKit/AVKit.h>
+
+#import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
+
 #import "LiveStream.h"
 #import "Stream.h"
 #import "VODStream.h"
 
-/*
-#import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
-*/
-@import GoogleInteractiveMediaAds;
-@import AVKit;
 
 @interface VideoViewController () <IMAAdsLoaderDelegate,
                                    IMAStreamManagerDelegate,

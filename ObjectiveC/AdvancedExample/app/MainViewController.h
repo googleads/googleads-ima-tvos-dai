@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
-#import "AppDelegate.h"
+@interface MainViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
-int main(int argc, char* argv[]) {
-  @autoreleasepool {
-    return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
-  }
-}
+@end

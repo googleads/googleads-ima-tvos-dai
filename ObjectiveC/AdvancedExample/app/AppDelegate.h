@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
-@interface MainViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
+
+@property(strong, nonatomic) UIWindow *window;
 
 @end

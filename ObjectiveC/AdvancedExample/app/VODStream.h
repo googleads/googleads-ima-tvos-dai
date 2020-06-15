@@ -16,19 +16,24 @@
 
 #import "Stream.h"
 
-@import AVFoundation;
-@import UIKit;
+#import <AVFoundation/AVFoundation.h>
+#import <UIKit/UIKit.h>
 
-/// Instances of the LiveStream class store information and status for live streams.
-@interface LiveStream : Stream
+/// Instances of the VODStream class store information and status for Video On Demand streams.
+/// Note that the bookmark property will be altered during playback, to store progress.
+@interface VODStream : Stream
 
-@property(nonatomic, nonnull) NSString *assetKey;
+@property(nonatomic, nonnull) NSString *contentID;
+@property(nonatomic, nonnull) NSString *videoID;
+@property(nonatomic) CGFloat bookmark;
 
-/// Returns an initialized live stream video.
 - (instancetype)initWithName:(nonnull NSString *)name
-                    assetKey:(nonnull NSString *)assetKey
+                   contentID:(nonnull NSString *)contentID
+                     videoID:(nonnull NSString *)videoID
                       APIKey:(nullable NSString *)APIKey;
 
-- (instancetype)initWithName:(nonnull NSString *)name assetKey:(nonnull NSString *)assetKey;
+- (instancetype)initWithName:(nonnull NSString *)name
+                   contentID:(nonnull NSString *)contentID
+                     videoID:(nonnull NSString *)videoID;
 
 @end
