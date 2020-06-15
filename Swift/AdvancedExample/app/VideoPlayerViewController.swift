@@ -28,11 +28,13 @@ class VideoPlayerViewController:
 {
   public var stream: Stream?
   private var adsLoader: IMAAdsLoader?
+  private var adDisplayContainer: IMAAdDisplayContainer?
   private var adContainerView: UIView?
   private var streamManager: IMAStreamManager?
   private var contentPlayhead: IMAAVPlayerContentPlayhead?
   private var playerViewController: AVPlayerViewController?
   private var userSeekTime = 0.0
+  private var adBreakActive = false
 
   deinit {
     NotificationCenter.default.removeObserver(self)
@@ -106,7 +108,7 @@ class VideoPlayerViewController:
   func requestStream() {
     let videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: self.playerViewController!.player)
     videoDisplay!.playerVideoDisplayDelegate = self
-    let adDisplayContainer = IMAAdDisplayContainer(
+    adDisplayContainer = IMAAdDisplayContainer(
       adContainer: self.adContainerView!, viewController: self)
     let request: IMAStreamRequest
     if let liveStream = self.stream as? LiveStream {
@@ -132,6 +134,18 @@ class VideoPlayerViewController:
   @objc func contentDidFinishPlaying(_ notification: Notification) {
     adsLoader!.contentComplete()
     self.dismiss(animated: false, completion: nil)
+  }
+
+  // MARK: - UIFocusEnvironment
+
+  override var preferredFocusEnvironments: [UIFocusEnvironment] {
+    if adBreakActive {
+      // Send focus to the ad display container during an ad break.
+      return [adDisplayContainer!.focusEnvironment!]
+    } else {
+      // Send focus to the content player otherwise.
+      return [playerViewController!]
+    }
   }
 
   // MARK: - IMAAdsLoaderDelegate
@@ -173,12 +187,18 @@ class VideoPlayerViewController:
       // Prevent user seek through when an ad starts and show the ad controls.
       self.playerViewController!.requiresLinearPlayback = true
       self.adContainerView!.isHidden = false
+      // Trigger an update to send focus to the ad display container.
+      adBreakActive = true
+      setNeedsFocusUpdate()
       break
     case IMAAdEventType.AD_BREAK_ENDED:
       // Allow user seek through after an ad ends and hide the ad controls.
       restoreFromSnapback()
       self.playerViewController!.requiresLinearPlayback = false
       self.adContainerView!.isHidden = true
+      // Trigger an update to send focus to the content player.
+      adBreakActive = false
+      setNeedsFocusUpdate()
       break
     default:
       break

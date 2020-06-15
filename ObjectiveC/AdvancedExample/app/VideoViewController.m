@@ -30,11 +30,13 @@
                                    AVPlayerViewControllerDelegate,
                                    IMAAVPlayerVideoDisplayDelegate>
 @property(nonatomic) IMAAdsLoader *adsLoader;
+@property(nonatomic) IMAAdDisplayContainer *adDisplayContainer;
 @property(nonatomic) UIView *adContainerView;
 @property(nonatomic) IMAStreamManager *streamManager;
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
 @property(nonatomic) CGFloat userSeekTime;
+@property(nonatomic, getter=isAdBreakActive) BOOL adBreakActive;
 @end
 
 @implementation VideoViewController
@@ -108,13 +110,13 @@
 - (void)requestStream {
   IMAAVPlayerVideoDisplay *videoDisplay =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
-  IMAAdDisplayContainer *adDisplayContainer =
-      [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView viewController:self];
+  self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
+                                                                viewController:self];
   if ([self.stream isKindOfClass:[LiveStream class]]) {
     LiveStream *liveStream = (LiveStream *)self.stream;
     IMALiveStreamRequest *request =
         [[IMALiveStreamRequest alloc] initWithAssetKey:liveStream.assetKey
-                                    adDisplayContainer:adDisplayContainer
+                                    adDisplayContainer:self.adDisplayContainer
                                           videoDisplay:videoDisplay];
     [self.adsLoader requestStreamWithRequest:request];
   } else if ([self.stream isKindOfClass:[VODStream class]]) {
@@ -122,7 +124,7 @@
     IMAVODStreamRequest *request =
         [[IMAVODStreamRequest alloc] initWithContentSourceID:vodStream.contentID
                                                      videoID:vodStream.videoID
-                                          adDisplayContainer:adDisplayContainer
+                                          adDisplayContainer:self.adDisplayContainer
                                                 videoDisplay:videoDisplay];
     [self.adsLoader requestStreamWithRequest:request];
   } else {
@@ -138,6 +140,18 @@
 
 - (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - UIFocusEnvironment
+
+- (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
+  if (self.isAdBreakActive) {
+    // Send focus to the ad display container during an ad break.
+    return @[ self.adDisplayContainer.focusEnvironment ];
+  } else {
+    // Send focus to the content player otherwise.
+    return @[ self.playerViewController ];
+  }
 }
 
 #pragma mark - IMAAdsLoaderDelegate
@@ -176,6 +190,9 @@
       // Prevent user seek through when an ad starts and show the ad controls.
       self.playerViewController.requiresLinearPlayback = YES;
       self.adContainerView.hidden = NO;
+      // Trigger an update to send focus to the ad display container.
+      self.adBreakActive = YES;
+      [self setNeedsFocusUpdate];
       break;
     }
     case kIMAAdEvent_AD_BREAK_ENDED: {
@@ -183,6 +200,9 @@
       [self restoreFromSnapback];
       self.playerViewController.requiresLinearPlayback = NO;
       self.adContainerView.hidden = YES;
+      // Trigger an update to send focus to the content player.
+      self.adBreakActive = NO;
+      [self setNeedsFocusUpdate];
       break;
     }
     default:

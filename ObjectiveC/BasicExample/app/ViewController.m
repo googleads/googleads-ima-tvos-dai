@@ -29,9 +29,11 @@ static NSString *const kBackupStreamURLString =
 
 @interface ViewController () <IMAAdsLoaderDelegate, IMAStreamManagerDelegate>
 @property(nonatomic) IMAAdsLoader *adsLoader;
+@property(nonatomic) IMAAdDisplayContainer *adDisplayContainer;
 @property(nonatomic) UIView *adContainerView;
 @property(nonatomic) IMAStreamManager *streamManager;
 @property(nonatomic) AVPlayerViewController *playerViewController;
+@property(nonatomic, getter=isAdBreakActive) BOOL adBreakActive;
 @end
 
 @implementation ViewController
@@ -79,17 +81,18 @@ static NSString *const kBackupStreamURLString =
 - (void)requestStream {
   IMAAVPlayerVideoDisplay *videoDisplay =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
-  IMAAdDisplayContainer *adDisplayContainer =
-      [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView viewController:self];
-  IMALiveStreamRequest *request = [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
-                                                              adDisplayContainer:adDisplayContainer
-                                                                    videoDisplay:videoDisplay];
+  self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
+                                                                viewController:self];
+  IMALiveStreamRequest *request =
+      [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
+                                  adDisplayContainer:self.adDisplayContainer
+                                        videoDisplay:videoDisplay];
   // VOD request. Comment out the IMALiveStreamRequest above and uncomment this IMAVODStreamRequest
   // to switch from a livestream to a VOD stream.
   // IMAVODStreamRequest *request =
   //     [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
   //                                                  videoID:kVideoID
-  //                                       adDisplayContainer:adDisplayContainer
+  //                                       adDisplayContainer:self.adDisplayContainer
   //                                             videoDisplay:videoDisplay];
   [self.adsLoader requestStreamWithRequest:request];
 }
@@ -99,6 +102,18 @@ static NSString *const kBackupStreamURLString =
   AVPlayerItem *backupStreamItem = [AVPlayerItem playerItemWithURL:backupStreamURL];
   [self.playerViewController.player replaceCurrentItemWithPlayerItem:backupStreamItem];
   [self.playerViewController.player play];
+}
+
+#pragma mark - UIFocusEnvironment
+
+- (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
+  if (self.isAdBreakActive) {
+    // Send focus to the ad display container during an ad break.
+    return @[ self.adDisplayContainer.focusEnvironment ];
+  } else {
+    // Send focus to the content player otherwise.
+    return @[ self.playerViewController ];
+  }
 }
 
 #pragma mark - IMAAdsLoaderDelegate
@@ -139,12 +154,18 @@ static NSString *const kBackupStreamURLString =
       // Prevent user seek through when an ad starts and show the ad controls.
       self.playerViewController.requiresLinearPlayback = YES;
       self.adContainerView.hidden = NO;
+      // Trigger an update to send focus to the ad display container.
+      self.adBreakActive = YES;
+      [self setNeedsFocusUpdate];
       break;
     }
     case kIMAAdEvent_AD_BREAK_ENDED: {
       // Allow user seek through after an ad ends and hide the ad controls.
       self.playerViewController.requiresLinearPlayback = NO;
       self.adContainerView.hidden = YES;
+      // Trigger an update to send focus to the content player.
+      self.adBreakActive = NO;
+      [self setNeedsFocusUpdate];
       break;
     }
     default:
