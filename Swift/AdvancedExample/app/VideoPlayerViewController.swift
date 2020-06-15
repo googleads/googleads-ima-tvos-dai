@@ -106,7 +106,8 @@ class VideoPlayerViewController:
   func requestStream() {
     let videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: self.playerViewController!.player)
     videoDisplay!.playerVideoDisplayDelegate = self
-    let adDisplayContainer = IMAAdDisplayContainer(adContainer: self.adContainerView!)
+    let adDisplayContainer = IMAAdDisplayContainer(
+      adContainer: self.adContainerView!, viewController: self)
     let request: IMAStreamRequest
     if let liveStream = self.stream as? LiveStream {
       request = IMALiveStreamRequest(

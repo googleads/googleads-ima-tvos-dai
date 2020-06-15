@@ -109,7 +109,7 @@
   IMAAVPlayerVideoDisplay *videoDisplay =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   IMAAdDisplayContainer *adDisplayContainer =
-      [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView];
+      [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView viewController:self];
   if ([self.stream isKindOfClass:[LiveStream class]]) {
     LiveStream *liveStream = (LiveStream *)self.stream;
     IMALiveStreamRequest *request =

@@ -80,7 +80,7 @@ static NSString *const kBackupStreamURLString =
   IMAAVPlayerVideoDisplay *videoDisplay =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   IMAAdDisplayContainer *adDisplayContainer =
-      [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView];
+      [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView viewController:self];
   IMALiveStreamRequest *request = [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
                                                               adDisplayContainer:adDisplayContainer
                                                                     videoDisplay:videoDisplay];
