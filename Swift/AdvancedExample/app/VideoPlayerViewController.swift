@@ -30,6 +30,7 @@ class VideoPlayerViewController:
   private var adsLoader: IMAAdsLoader?
   private var adDisplayContainer: IMAAdDisplayContainer?
   private var adContainerView: UIView?
+  private var videoDisplay: IMAAVPlayerVideoDisplay!
   private var streamManager: IMAStreamManager?
   private var contentPlayhead: IMAAVPlayerContentPlayhead?
   private var playerViewController: AVPlayerViewController?
@@ -106,7 +107,7 @@ class VideoPlayerViewController:
   }
 
   func requestStream() {
-    let videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: self.playerViewController!.player)
+    self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: self.playerViewController!.player)
     videoDisplay!.playerVideoDisplayDelegate = self
     adDisplayContainer = IMAAdDisplayContainer(
       adContainer: self.adContainerView!, viewController: self)
@@ -115,14 +116,14 @@ class VideoPlayerViewController:
       request = IMALiveStreamRequest(
         assetKey: liveStream.assetKey,
         adDisplayContainer: adDisplayContainer,
-        videoDisplay: videoDisplay)
+        videoDisplay: self.videoDisplay)
       self.adsLoader!.requestStream(with: request)
     } else if let vodStream = self.stream as? VODStream {
       request = IMAVODStreamRequest(
         contentSourceID: vodStream.cmsID,
         videoID: vodStream.videoID,
         adDisplayContainer: adDisplayContainer,
-        videoDisplay: videoDisplay)
+        videoDisplay: self.videoDisplay)
       self.adsLoader!.requestStream(with: request)
     } else {
       assertionFailure("Unknown stream type selected")
@@ -199,6 +200,10 @@ class VideoPlayerViewController:
       // Trigger an update to send focus to the content player.
       adBreakActive = false
       setNeedsFocusUpdate()
+      break
+    case IMAAdEventType.ICON_FALLBACK_IMAGE_CLOSED:
+      // Resume playback after the user has closed the dialog.
+      self.videoDisplay.play()
       break
     default:
       break

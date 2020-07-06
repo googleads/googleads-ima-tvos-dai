@@ -32,6 +32,7 @@
 @property(nonatomic) IMAAdsLoader *adsLoader;
 @property(nonatomic) IMAAdDisplayContainer *adDisplayContainer;
 @property(nonatomic) UIView *adContainerView;
+@property(nonatomic) id<IMAVideoDisplay> videoDisplay;
 @property(nonatomic) IMAStreamManager *streamManager;
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
@@ -108,7 +109,7 @@
 }
 
 - (void)requestStream {
-  IMAAVPlayerVideoDisplay *videoDisplay =
+  self.videoDisplay =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
@@ -117,7 +118,7 @@
     IMALiveStreamRequest *request =
         [[IMALiveStreamRequest alloc] initWithAssetKey:liveStream.assetKey
                                     adDisplayContainer:self.adDisplayContainer
-                                          videoDisplay:videoDisplay];
+                                          videoDisplay:self.videoDisplay];
     [self.adsLoader requestStreamWithRequest:request];
   } else if ([self.stream isKindOfClass:[VODStream class]]) {
     VODStream *vodStream = (VODStream *)self.stream;
@@ -125,7 +126,7 @@
         [[IMAVODStreamRequest alloc] initWithContentSourceID:vodStream.contentID
                                                      videoID:vodStream.videoID
                                           adDisplayContainer:self.adDisplayContainer
-                                                videoDisplay:videoDisplay];
+                                                videoDisplay:self.videoDisplay];
     [self.adsLoader requestStreamWithRequest:request];
   } else {
     NSLog(@"Error: unknown stream type");
@@ -203,6 +204,11 @@
       // Trigger an update to send focus to the content player.
       self.adBreakActive = NO;
       [self setNeedsFocusUpdate];
+      break;
+    }
+    case kIMAAdEvent_ICON_FALLBACK_IMAGE_CLOSED: {
+      // Resume playback after the user has closed the dialog.
+      [self.videoDisplay play];
       break;
     }
     default:

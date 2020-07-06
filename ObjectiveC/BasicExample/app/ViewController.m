@@ -31,6 +31,7 @@ static NSString *const kBackupStreamURLString =
 @property(nonatomic) IMAAdsLoader *adsLoader;
 @property(nonatomic) IMAAdDisplayContainer *adDisplayContainer;
 @property(nonatomic) UIView *adContainerView;
+@property(nonatomic) id<IMAVideoDisplay> videoDisplay;
 @property(nonatomic) IMAStreamManager *streamManager;
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic, getter=isAdBreakActive) BOOL adBreakActive;
@@ -79,21 +80,21 @@ static NSString *const kBackupStreamURLString =
 }
 
 - (void)requestStream {
-  IMAAVPlayerVideoDisplay *videoDisplay =
+  self.videoDisplay =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
   IMALiveStreamRequest *request =
       [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
                                   adDisplayContainer:self.adDisplayContainer
-                                        videoDisplay:videoDisplay];
+                                        videoDisplay:self.videoDisplay];
   // VOD request. Comment out the IMALiveStreamRequest above and uncomment this IMAVODStreamRequest
   // to switch from a livestream to a VOD stream.
   // IMAVODStreamRequest *request =
   //     [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
   //                                                  videoID:kVideoID
   //                                       adDisplayContainer:self.adDisplayContainer
-  //                                             videoDisplay:videoDisplay];
+  //                                             videoDisplay:self.videoDisplay];
   [self.adsLoader requestStreamWithRequest:request];
 }
 
@@ -166,6 +167,11 @@ static NSString *const kBackupStreamURLString =
       // Trigger an update to send focus to the content player.
       self.adBreakActive = NO;
       [self setNeedsFocusUpdate];
+      break;
+    }
+    case kIMAAdEvent_ICON_FALLBACK_IMAGE_CLOSED: {
+      // Resume playback after the user has closed the dialog.
+      [self.videoDisplay play];
       break;
     }
     default:
