@@ -27,7 +27,9 @@ static NSString *const kBackupStreamURLString =
     @"http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/"
     @"master.m3u8";
 
-@interface ViewController () <IMAAdsLoaderDelegate, IMAStreamManagerDelegate>
+@interface ViewController () <IMAAdsLoaderDelegate,
+                              IMAStreamManagerDelegate,
+                              AVPlayerViewControllerDelegate>
 @property(nonatomic) IMAAdsLoader *adsLoader;
 @property(nonatomic) IMAAdDisplayContainer *adDisplayContainer;
 @property(nonatomic) UIView *adContainerView;
@@ -152,8 +154,6 @@ static NSString *const kBackupStreamURLString =
       break;
     }
     case kIMAAdEvent_AD_BREAK_STARTED: {
-      // Prevent user seek through when an ad starts and show the ad controls.
-      self.playerViewController.requiresLinearPlayback = YES;
       self.adContainerView.hidden = NO;
       // Trigger an update to send focus to the ad display container.
       self.adBreakActive = YES;
@@ -161,8 +161,6 @@ static NSString *const kBackupStreamURLString =
       break;
     }
     case kIMAAdEvent_AD_BREAK_ENDED: {
-      // Allow user seek through after an ad ends and hide the ad controls.
-      self.playerViewController.requiresLinearPlayback = NO;
       self.adContainerView.hidden = YES;
       // Trigger an update to send focus to the content player.
       self.adBreakActive = NO;
@@ -183,6 +181,18 @@ static NSString *const kBackupStreamURLString =
   // Fall back to playing the backup stream.
   NSLog(@"StreamManager error: %@", error.message);
   [self playBackupStream];
+}
+
+#pragma mark - AVPlayerViewControllerDelegate
+
+- (CMTime)playerViewController:(AVPlayerViewController *)playerViewController
+    timeToSeekAfterUserNavigatedFromTime:(CMTime)oldTime
+                                  toTime:(CMTime)targetTime {
+  if (self.isAdBreakActive) {
+    // Disable seeking during ad breaks.
+    return oldTime;
+  }
+  return targetTime;
 }
 
 @end

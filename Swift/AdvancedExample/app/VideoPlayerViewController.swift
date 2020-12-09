@@ -185,17 +185,13 @@ class VideoPlayerViewController:
       print("\(extendedAdPodInfo)")
       break
     case IMAAdEventType.AD_BREAK_STARTED:
-      // Prevent user seek through when an ad starts and show the ad controls.
-      self.playerViewController!.requiresLinearPlayback = true
       self.adContainerView!.isHidden = false
       // Trigger an update to send focus to the ad display container.
       adBreakActive = true
       setNeedsFocusUpdate()
       break
     case IMAAdEventType.AD_BREAK_ENDED:
-      // Allow user seek through after an ad ends and hide the ad controls.
       restoreFromSnapback()
-      self.playerViewController!.requiresLinearPlayback = false
       self.adContainerView!.isHidden = true
       // Trigger an update to send focus to the content player.
       adBreakActive = false
@@ -232,6 +228,9 @@ class VideoPlayerViewController:
     timeToSeekAfterUserNavigatedFrom oldTime: CMTime,
     to targetTime: CMTime
   ) -> CMTime {
+    if adBreakActive {
+      return oldTime
+    }
     if let streamManager = self.streamManager {
       // perform snapback if user scrubs ahead of ad break
       let targetSeconds = CMTimeGetSeconds(targetTime)

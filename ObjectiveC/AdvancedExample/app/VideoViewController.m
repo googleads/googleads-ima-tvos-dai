@@ -188,8 +188,6 @@
       break;
     }
     case kIMAAdEvent_AD_BREAK_STARTED: {
-      // Prevent user seek through when an ad starts and show the ad controls.
-      self.playerViewController.requiresLinearPlayback = YES;
       self.adContainerView.hidden = NO;
       // Trigger an update to send focus to the ad display container.
       self.adBreakActive = YES;
@@ -197,9 +195,7 @@
       break;
     }
     case kIMAAdEvent_AD_BREAK_ENDED: {
-      // Allow user seek through after an ad ends and hide the ad controls.
       [self restoreFromSnapback];
-      self.playerViewController.requiresLinearPlayback = NO;
       self.adContainerView.hidden = YES;
       // Trigger an update to send focus to the content player.
       self.adBreakActive = NO;
@@ -235,6 +231,10 @@
 - (CMTime)playerViewController:(AVPlayerViewController *)playerViewController
     timeToSeekAfterUserNavigatedFromTime:(CMTime)oldTime
                                   toTime:(CMTime)targetTime {
+  if (self.isAdBreakActive) {
+    // Disable seeking during ad breaks.
+    return oldTime;
+  }
   if (self.streamManager) {
     CGFloat targetSeconds = CMTimeGetSeconds(targetTime);
     IMACuepoint *prevCuepoint = [self.streamManager previousCuepointForStreamTime:targetSeconds];
