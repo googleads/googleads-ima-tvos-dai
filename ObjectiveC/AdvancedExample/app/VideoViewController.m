@@ -17,6 +17,7 @@
 #import "VideoViewController.h"
 
 #import <AVKit/AVKit.h>
+#import <MediaPlayer/MediaPlayer.h>
 
 #import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
 
@@ -34,6 +35,7 @@
 @property(nonatomic) UIView *adContainerView;
 @property(nonatomic) id<IMAVideoDisplay> videoDisplay;
 @property(nonatomic) IMAStreamManager *streamManager;
+@property(nonatomic) MPNowPlayingSession *nowPlayingSession API_AVAILABLE(tvos(14.0));
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
 @property(nonatomic) CGFloat userSeekTime;
@@ -41,6 +43,10 @@
 @end
 
 @implementation VideoViewController
+
+- (void)dealloc {
+  [NSNotificationCenter.defaultCenter removeObserver:self];
+}
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -109,8 +115,16 @@
 }
 
 - (void)requestStream {
-  self.videoDisplay =
-      [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
+  if (@available(tvOS 14.0, *)) {
+    self.nowPlayingSession =
+        [[MPNowPlayingSession alloc] initWithPlayers:@[ self.playerViewController.player ]];
+    self.videoDisplay =
+        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player
+                                        nowPlayingSession:self.nowPlayingSession];
+  } else {
+    self.videoDisplay =
+        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
+  }
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
   if ([self.stream isKindOfClass:[LiveStream class]]) {
@@ -139,8 +153,12 @@
   [self dismissViewControllerAnimated:TRUE completion:NULL];
 }
 
-- (void)dealloc {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
+- (void)startMediaSession {
+  [[AVAudioSession sharedInstance] setActive:YES error:nil];
+  [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+  if (@available(tvOS 14.0, *)) {
+    [self.nowPlayingSession becomeActiveIfPossibleWithCompletion:nil];
+  }
 }
 
 #pragma mark - UIFocusEnvironment
@@ -174,6 +192,10 @@
 - (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
   NSLog(@"StreamManager event (%@).", event.typeString);
   switch (event.type) {
+    case kIMAAdEvent_STREAM_STARTED: {
+      [self startMediaSession];
+      break;
+    }
     case kIMAAdEvent_STARTED: {
       // Log extended data.
       NSString *extendedAdPodInfo = [[NSString alloc]

@@ -15,6 +15,7 @@
  */
 import AVFoundation
 import GoogleInteractiveMediaAds
+import MediaPlayer
 import UIKit
 
 /// The video player view controller will control playback of a stream selected in the main
@@ -36,6 +37,11 @@ class VideoPlayerViewController:
   private var playerViewController: AVPlayerViewController?
   private var userSeekTime = 0.0
   private var adBreakActive = false
+
+  @available(tvOS 14.0, *)
+  private(set) lazy var nowPlayingSession = MPNowPlayingSession(players: [
+    self.playerViewController!.player!,
+  ])
 
   deinit {
     NotificationCenter.default.removeObserver(self)
@@ -107,7 +113,13 @@ class VideoPlayerViewController:
   }
 
   func requestStream() {
-    self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: self.playerViewController!.player)
+    if #available(tvOS 14.0, *) {
+      self.videoDisplay = IMAAVPlayerVideoDisplay(
+        avPlayer: self.playerViewController!.player,
+        nowPlayingSession: self.nowPlayingSession)
+    } else {
+      self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: self.playerViewController!.player)
+    }
     videoDisplay!.playerVideoDisplayDelegate = self
     adDisplayContainer = IMAAdDisplayContainer(
       adContainer: self.adContainerView!, viewController: self)
@@ -135,6 +147,14 @@ class VideoPlayerViewController:
   @objc func contentDidFinishPlaying(_ notification: Notification) {
     adsLoader!.contentComplete()
     self.dismiss(animated: false, completion: nil)
+  }
+
+  func startMediaSession() {
+    try? AVAudioSession.sharedInstance().setActive(true, options: [])
+    try? AVAudioSession.sharedInstance().setCategory(.playback)
+    if #available(tvOS 14.0, *) {
+      self.nowPlayingSession.becomeActiveIfPossible(completion: nil)
+    }
   }
 
   // MARK: - UIFocusEnvironment
@@ -166,6 +186,8 @@ class VideoPlayerViewController:
   func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
     print("StreamManager event \(event.typeString!).")
     switch event.type {
+    case IMAAdEventType.STREAM_STARTED:
+      self.startMediaSession()
     case IMAAdEventType.STARTED:
       // Log extended data.
       let extendedAdPodInfo = String(
@@ -183,20 +205,17 @@ class VideoPlayerViewController:
         event.ad.adPodInfo.maxDuration)
 
       print("\(extendedAdPodInfo)")
-      break
     case IMAAdEventType.AD_BREAK_STARTED:
       self.adContainerView!.isHidden = false
       // Trigger an update to send focus to the ad display container.
       adBreakActive = true
       setNeedsFocusUpdate()
-      break
     case IMAAdEventType.AD_BREAK_ENDED:
       restoreFromSnapback()
       self.adContainerView!.isHidden = true
       // Trigger an update to send focus to the content player.
       adBreakActive = false
       setNeedsFocusUpdate()
-      break
     case IMAAdEventType.ICON_FALLBACK_IMAGE_CLOSED:
       // Resume playback after the user has closed the dialog.
       self.videoDisplay.play()

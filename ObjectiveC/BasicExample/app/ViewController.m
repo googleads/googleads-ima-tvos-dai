@@ -16,6 +16,7 @@
 #import "ViewController.h"
 
 #import <AVKit/AVKit.h>
+#import <MediaPlayer/MediaPlayer.h>
 
 #import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
 
@@ -35,6 +36,7 @@ static NSString *const kBackupStreamURLString =
 @property(nonatomic) UIView *adContainerView;
 @property(nonatomic) id<IMAVideoDisplay> videoDisplay;
 @property(nonatomic) IMAStreamManager *streamManager;
+@property(nonatomic) MPNowPlayingSession *nowPlayingSession API_AVAILABLE(tvos(14.0));
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic, getter=isAdBreakActive) BOOL adBreakActive;
 @end
@@ -82,8 +84,16 @@ static NSString *const kBackupStreamURLString =
 }
 
 - (void)requestStream {
-  self.videoDisplay =
-      [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
+  if (@available(tvOS 14.0, *)) {
+    self.nowPlayingSession =
+        [[MPNowPlayingSession alloc] initWithPlayers:@[ self.playerViewController.player ]];
+    self.videoDisplay =
+        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player
+                                        nowPlayingSession:self.nowPlayingSession];
+  } else {
+    self.videoDisplay =
+        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
+  }
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
   IMALiveStreamRequest *request =
@@ -105,6 +115,15 @@ static NSString *const kBackupStreamURLString =
   AVPlayerItem *backupStreamItem = [AVPlayerItem playerItemWithURL:backupStreamURL];
   [self.playerViewController.player replaceCurrentItemWithPlayerItem:backupStreamItem];
   [self.playerViewController.player play];
+  [self startMediaSession];
+}
+
+- (void)startMediaSession {
+  [[AVAudioSession sharedInstance] setActive:YES error:nil];
+  [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+  if (@available(tvOS 14.0, *)) {
+    [self.nowPlayingSession becomeActiveIfPossibleWithCompletion:nil];
+  }
 }
 
 #pragma mark - UIFocusEnvironment
@@ -140,6 +159,10 @@ static NSString *const kBackupStreamURLString =
 - (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
   NSLog(@"StreamManager event (%@).", event.typeString);
   switch (event.type) {
+    case kIMAAdEvent_STREAM_STARTED: {
+      [self startMediaSession];
+      break;
+    }
     case kIMAAdEvent_STARTED: {
       // Log extended data.
       NSString *extendedAdPodInfo = [[NSString alloc]
