@@ -32,15 +32,17 @@ class VideoPlayerViewController:
   private var adDisplayContainer: IMAAdDisplayContainer?
   private var adContainerView: UIView?
   private var videoDisplay: IMAAVPlayerVideoDisplay!
+  private var pipProxy: IMAPictureInPictureProxy?
   private var streamManager: IMAStreamManager?
   private var contentPlayhead: IMAAVPlayerContentPlayhead?
   private var playerViewController: AVPlayerViewController?
   private var userSeekTime = 0.0
   private var adBreakActive = false
+  private var isTransportBarVisible = false
 
   @available(tvOS 14.0, *)
   private(set) lazy var nowPlayingSession = MPNowPlayingSession(players: [
-    self.playerViewController!.player!,
+    self.playerViewController!.player!
   ])
 
   deinit {
@@ -79,7 +81,9 @@ class VideoPlayerViewController:
   }
 
   func setupAdsLoader() {
-    adsLoader = IMAAdsLoader(settings: nil)
+    let settings = IMASettings()
+    settings.enableBackgroundPlayback = true
+    adsLoader = IMAAdsLoader(settings: settings)
     adsLoader!.delegate = self
   }
 
@@ -113,12 +117,17 @@ class VideoPlayerViewController:
   }
 
   func requestStream() {
+    guard let playerViewController = self.playerViewController else {
+      return
+    }
     if #available(tvOS 14.0, *) {
+      self.pipProxy = IMAPictureInPictureProxy(avPlayerViewControllerDelegate: self)
+      playerViewController.delegate = self.pipProxy
       self.videoDisplay = IMAAVPlayerVideoDisplay(
-        avPlayer: self.playerViewController!.player,
+        avPlayer: playerViewController.player,
         nowPlayingSession: self.nowPlayingSession)
     } else {
-      self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: self.playerViewController!.player)
+      self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: playerViewController.player)
     }
     videoDisplay!.playerVideoDisplayDelegate = self
     adDisplayContainer = IMAAdDisplayContainer(
@@ -128,14 +137,16 @@ class VideoPlayerViewController:
       request = IMALiveStreamRequest(
         assetKey: liveStream.assetKey,
         adDisplayContainer: adDisplayContainer,
-        videoDisplay: self.videoDisplay)
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: self.pipProxy)
       self.adsLoader!.requestStream(with: request)
     } else if let vodStream = self.stream as? VODStream {
       request = IMAVODStreamRequest(
         contentSourceID: vodStream.cmsID,
         videoID: vodStream.videoID,
         adDisplayContainer: adDisplayContainer,
-        videoDisplay: self.videoDisplay)
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: self.pipProxy)
       self.adsLoader!.requestStream(with: request)
     } else {
       assertionFailure("Unknown stream type selected")
@@ -160,7 +171,10 @@ class VideoPlayerViewController:
   // MARK: - UIFocusEnvironment
 
   override var preferredFocusEnvironments: [UIFocusEnvironment] {
-    if adBreakActive, let adFocusEnvironment = adDisplayContainer?.focusEnvironment {
+    let isPIPUIVisible = self.isTransportBarVisible && self.pipProxy != nil
+    if !isPIPUIVisible && adBreakActive,
+      let adFocusEnvironment = adDisplayContainer?.focusEnvironment
+    {
       // Send focus to the ad display container during an ad break.
       return [adFocusEnvironment]
     } else {
@@ -170,6 +184,7 @@ class VideoPlayerViewController:
   }
 
   // MARK: - IMAAdsLoaderDelegate
+
   func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
     // Grab the instance of the IMAAdsManager and set ourselves as the delegate.
     streamManager = adsLoadedData.streamManager
@@ -242,6 +257,7 @@ class VideoPlayerViewController:
   }
 
   // MARK: - AVPlayerViewControllerDelegate
+
   func playerViewController(
     _ playerViewController: AVPlayerViewController,
     timeToSeekAfterUserNavigatedFrom oldTime: CMTime,
@@ -267,7 +283,20 @@ class VideoPlayerViewController:
     return targetTime
   }
 
+  func playerViewController(
+    _ playerViewController: AVPlayerViewController,
+    willTransitionToVisibilityOfTransportBar visible: Bool,
+    with coordinator: AVPlayerViewControllerAnimationCoordinator
+  ) {
+    // Transfer focus from the ad display container to the content player, for the user to access
+    // PiP controls.
+    self.isTransportBarVisible = visible
+    self.setNeedsFocusUpdate()
+    self.updateFocusIfNeeded()
+  }
+
   // MARK: - IMAAVPlayerVideoDisplayDelegate
+
   func playerVideoDisplay(
     _ playerVideoDisplay: IMAAVPlayerVideoDisplay!,
     didLoad playerItem: AVPlayerItem!

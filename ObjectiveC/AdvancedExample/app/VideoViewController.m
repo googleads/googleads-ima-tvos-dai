@@ -34,12 +34,14 @@
 @property(nonatomic) IMAAdDisplayContainer *adDisplayContainer;
 @property(nonatomic) UIView *adContainerView;
 @property(nonatomic) id<IMAVideoDisplay> videoDisplay;
+@property(nonatomic) IMAPictureInPictureProxy *PIPProxy;
 @property(nonatomic) IMAStreamManager *streamManager;
 @property(nonatomic) MPNowPlayingSession *nowPlayingSession API_AVAILABLE(tvos(14.0));
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
 @property(nonatomic) CGFloat userSeekTime;
 @property(nonatomic, getter=isAdBreakActive) BOOL adBreakActive;
+@property(nonatomic, getter=isTransportBarVisible) BOOL transportBarVisible;
 @end
 
 @implementation VideoViewController
@@ -80,7 +82,9 @@
 }
 
 - (void)setupAdsLoader {
-  self.adsLoader = [[IMAAdsLoader alloc] init];
+  IMASettings *settings = [[IMASettings alloc] init];
+  settings.enableBackgroundPlayback = YES;
+  self.adsLoader = [[IMAAdsLoader alloc] initWithSettings:settings];
   self.adsLoader.delegate = self;
 }
 
@@ -116,6 +120,8 @@
 
 - (void)requestStream {
   if (@available(tvOS 14.0, *)) {
+    self.PIPProxy = [[IMAPictureInPictureProxy alloc] initWithAVPlayerViewControllerDelegate:self];
+    self.playerViewController.delegate = self.PIPProxy;
     self.nowPlayingSession =
         [[MPNowPlayingSession alloc] initWithPlayers:@[ self.playerViewController.player ]];
     self.videoDisplay =
@@ -132,7 +138,8 @@
     IMALiveStreamRequest *request =
         [[IMALiveStreamRequest alloc] initWithAssetKey:liveStream.assetKey
                                     adDisplayContainer:self.adDisplayContainer
-                                          videoDisplay:self.videoDisplay];
+                                          videoDisplay:self.videoDisplay
+                                 pictureInPictureProxy:self.PIPProxy];
     [self.adsLoader requestStreamWithRequest:request];
   } else if ([self.stream isKindOfClass:[VODStream class]]) {
     VODStream *vodStream = (VODStream *)self.stream;
@@ -140,7 +147,8 @@
         [[IMAVODStreamRequest alloc] initWithContentSourceID:vodStream.contentID
                                                      videoID:vodStream.videoID
                                           adDisplayContainer:self.adDisplayContainer
-                                                videoDisplay:self.videoDisplay];
+                                                videoDisplay:self.videoDisplay
+                                       pictureInPictureProxy:self.PIPProxy];
     [self.adsLoader requestStreamWithRequest:request];
   } else {
     NSLog(@"Error: unknown stream type");
@@ -164,7 +172,8 @@
 #pragma mark - UIFocusEnvironment
 
 - (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
-  if (self.isAdBreakActive && self.adDisplayContainer.focusEnvironment) {
+  BOOL isPIPUIVisible = self.isTransportBarVisible && self.PIPProxy;
+  if (!isPIPUIVisible && self.isAdBreakActive && self.adDisplayContainer.focusEnvironment) {
     // Send focus to the ad display container during an ad break.
     return @[ self.adDisplayContainer.focusEnvironment ];
   } else {
@@ -269,6 +278,17 @@
     }
   }
   return targetTime;
+}
+
+- (void)playerViewController:(AVPlayerViewController *)playerViewController
+    willTransitionToVisibilityOfTransportBar:(BOOL)visible
+                    withAnimationCoordinator:
+                        (id<AVPlayerViewControllerAnimationCoordinator>)coordinator {
+  // Transfer focus from the ad display container to the content player, for the user to access
+  // PiP controls.
+  self.transportBarVisible = visible;
+  [self setNeedsFocusUpdate];
+  [self updateFocusIfNeeded];
 }
 
 #pragma mark - IMAAVPlayerVideoDisplayDelegate
