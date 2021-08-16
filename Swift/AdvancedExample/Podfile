@@ -1,7 +1,7 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-platform :tvos, '10'
+platform :tvos, '11'
 
 target "AdvancedExample" do
-  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.2'
+  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.4.2'
 end
