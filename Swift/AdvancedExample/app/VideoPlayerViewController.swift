@@ -29,20 +29,20 @@ class VideoPlayerViewController:
 {
   public var stream: Stream?
   private var adsLoader: IMAAdsLoader?
-  private var adDisplayContainer: IMAAdDisplayContainer?
-  private var adContainerView: UIView?
+  private var adDisplayContainer: IMAAdDisplayContainer!
+  private var adContainerView: UIView!
   private var videoDisplay: IMAAVPlayerVideoDisplay!
   private var pipProxy: IMAPictureInPictureProxy?
   private var streamManager: IMAStreamManager?
   private var contentPlayhead: IMAAVPlayerContentPlayhead?
-  private var playerViewController: AVPlayerViewController?
+  private var playerViewController: AVPlayerViewController!
   private var userSeekTime = 0.0
   private var adBreakActive = false
   private var isTransportBarVisible = false
 
   @available(tvOS 14.0, *)
   private(set) lazy var nowPlayingSession = MPNowPlayingSession(players: [
-    self.playerViewController!.player!
+    self.playerViewController.player!
   ])
 
   deinit {
@@ -66,14 +66,14 @@ class VideoPlayerViewController:
 
   override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
-    playerViewController!.player?.pause()
+    playerViewController.player?.pause()
     saveBookmark()
-    playerViewController!.player?.replaceCurrentItem(with: nil)
+    playerViewController.player?.replaceCurrentItem(with: nil)
   }
 
   func saveBookmark() {
     if let vodStream = stream as? VODStream {
-      let streamTime = CMTimeGetSeconds(self.playerViewController!.player!.currentTime())
+      let streamTime = CMTimeGetSeconds(self.playerViewController.player!.currentTime())
       let contentTime = self.streamManager!.contentTime(forStreamTime: streamTime)
       vodStream.bookmark = contentTime
       print("saving bookmark: \(contentTime)")
@@ -90,8 +90,8 @@ class VideoPlayerViewController:
   func setupPlayer() {
     let player = AVPlayer()
     playerViewController = AVPlayerViewController()
-    playerViewController!.delegate = self
-    playerViewController!.player = player
+    playerViewController.delegate = self
+    playerViewController.player = player
 
     // Set up our content playhead and contentComplete callback.
     contentPlayhead = IMAAVPlayerContentPlayhead(avPlayer: player)
@@ -101,37 +101,35 @@ class VideoPlayerViewController:
       name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
       object: player.currentItem)
 
-    self.addChild(playerViewController!)
-    playerViewController!.view.frame = self.view.bounds
-    self.view.insertSubview(playerViewController!.view, at: 0)
-    playerViewController!.didMove(toParent: self)
+    self.addChild(playerViewController)
+    playerViewController.view.frame = self.view.bounds
+    self.view.insertSubview(playerViewController.view, at: 0)
+    playerViewController.didMove(toParent: self)
   }
 
   func setupAdContainer() {
     // Attach the ad container to the view hierarchy on top of the player.
-    adContainerView = UIView()
-    self.view.addSubview(self.adContainerView!)
-    self.adContainerView!.frame = self.view.bounds
+    self.adContainerView = UIView()
+    self.view.addSubview(self.adContainerView)
+    self.adContainerView.frame = self.view.bounds
     // Keep hidden initially, until an ad break.
-    self.adContainerView!.isHidden = true
+    self.adContainerView.isHidden = true
+    adDisplayContainer = IMAAdDisplayContainer(
+      adContainer: self.adContainerView, viewController: self)
   }
 
   func requestStream() {
-    guard let playerViewController = self.playerViewController else {
-      return
-    }
+    guard let avPlayer = playerViewController.player else { return }
     if #available(tvOS 14.0, *) {
       self.pipProxy = IMAPictureInPictureProxy(avPlayerViewControllerDelegate: self)
       playerViewController.delegate = self.pipProxy
       self.videoDisplay = IMAAVPlayerVideoDisplay(
-        avPlayer: playerViewController.player,
+        avPlayer: avPlayer,
         nowPlayingSession: self.nowPlayingSession)
     } else {
-      self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: playerViewController.player)
+      self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: avPlayer)
     }
     videoDisplay!.playerVideoDisplayDelegate = self
-    adDisplayContainer = IMAAdDisplayContainer(
-      adContainer: self.adContainerView!, viewController: self)
     let request: IMAStreamRequest
     if let liveStream = self.stream as? LiveStream {
       request = IMALiveStreamRequest(
@@ -173,13 +171,13 @@ class VideoPlayerViewController:
   override var preferredFocusEnvironments: [UIFocusEnvironment] {
     let isPIPUIVisible = self.isTransportBarVisible && self.pipProxy != nil
     if !isPIPUIVisible && adBreakActive,
-      let adFocusEnvironment = adDisplayContainer?.focusEnvironment
+      let adFocusEnvironment = adDisplayContainer.focusEnvironment
     {
       // Send focus to the ad display container during an ad break.
       return [adFocusEnvironment]
     } else {
       // Send focus to the content player otherwise.
-      return [playerViewController!]
+      return [playerViewController]
     }
   }
 
@@ -199,35 +197,36 @@ class VideoPlayerViewController:
 
   // MARK: - IMAStreamManagerDelegate
   func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
-    print("StreamManager event \(event.typeString!).")
+    print("StreamManager event \(event.typeString).")
     switch event.type {
     case IMAAdEventType.STREAM_STARTED:
       self.startMediaSession()
     case IMAAdEventType.STARTED:
       // Log extended data.
-      let extendedAdPodInfo = String(
-        format: "Showing ad %zd/%zd, bumper: %@, title: %@, "
-          + "description: %@, contentType:%@, pod index: %zd, "
-          + "time offset: %lf, max duration: %lf.",
-        event.ad.adPodInfo.adPosition,
-        event.ad.adPodInfo.totalAds,
-        event.ad.adPodInfo.isBumper ? "YES" : "NO",
-        event.ad.adTitle,
-        event.ad.adDescription,
-        event.ad.contentType,
-        event.ad.adPodInfo.podIndex,
-        event.ad.adPodInfo.timeOffset,
-        event.ad.adPodInfo.maxDuration)
-
-      print("\(extendedAdPodInfo)")
+      if let ad = event.ad {
+        let extendedAdPodInfo = String(
+          format: "Showing ad %zd/%zd, bumper: %@, title: %@, "
+            + "description: %@, contentType:%@, pod index: %zd, "
+            + "time offset: %lf, max duration: %lf.",
+          ad.adPodInfo.adPosition,
+          ad.adPodInfo.totalAds,
+          ad.adPodInfo.isBumper ? "YES" : "NO",
+          ad.adTitle,
+          ad.adDescription,
+          ad.contentType,
+          ad.adPodInfo.podIndex,
+          ad.adPodInfo.timeOffset,
+          ad.adPodInfo.maxDuration)
+        print("\(extendedAdPodInfo)")
+      }
     case IMAAdEventType.AD_BREAK_STARTED:
-      self.adContainerView!.isHidden = false
+      self.adContainerView.isHidden = false
       // Trigger an update to send focus to the ad display container.
       adBreakActive = true
       setNeedsFocusUpdate()
     case IMAAdEventType.AD_BREAK_ENDED:
       restoreFromSnapback()
-      self.adContainerView!.isHidden = true
+      self.adContainerView.isHidden = true
       // Trigger an update to send focus to the content player.
       adBreakActive = false
       setNeedsFocusUpdate()
@@ -243,7 +242,7 @@ class VideoPlayerViewController:
   func restoreFromSnapback() {
     if userSeekTime > 0.0 {
       let seekCMTime = CMTimeMakeWithSeconds(userSeekTime, preferredTimescale: 1)
-      playerViewController!.player!.seek(
+      playerViewController.player!.seek(
         to: seekCMTime,
         toleranceBefore: CMTime.zero,
         toleranceAfter: CMTime.zero)
@@ -308,7 +307,7 @@ class VideoPlayerViewController:
         let streamTime = streamManager!.streamTime(forContentTime: contentTime)
         print("loading bookmark: \(contentTime)")
         let seekTime = CMTimeMakeWithSeconds(streamTime, preferredTimescale: 1)
-        self.playerViewController!.player!.seek(to: seekTime)
+        self.playerViewController.player!.seek(to: seekTime)
       }
     }
   }

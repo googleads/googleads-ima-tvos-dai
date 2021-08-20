@@ -16,14 +16,10 @@
 
 /// Instances of the LiveStream class store information and status for live streams.
 class LiveStream: Stream {
-  var assetKey: String? = nil
+  var assetKey: String
 
   init(name: String, assetKey: String, apiKey: String? = nil) {
-    if let api = apiKey {
-      super.init(name: name, apiKey: api)
-    } else {
-      super.init(name: name)
-    }
     self.assetKey = assetKey
+    super.init(name: name, apiKey: apiKey)
   }
 }
