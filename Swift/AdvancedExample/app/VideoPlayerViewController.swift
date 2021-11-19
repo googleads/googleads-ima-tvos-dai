@@ -40,11 +40,6 @@ class VideoPlayerViewController:
   private var adBreakActive = false
   private var isTransportBarVisible = false
 
-  @available(tvOS 14.0, *)
-  private(set) lazy var nowPlayingSession = MPNowPlayingSession(players: [
-    self.playerViewController.player!
-  ])
-
   deinit {
     NotificationCenter.default.removeObserver(self)
   }
@@ -123,12 +118,8 @@ class VideoPlayerViewController:
     if #available(tvOS 14.0, *) {
       self.pipProxy = IMAPictureInPictureProxy(avPlayerViewControllerDelegate: self)
       playerViewController.delegate = self.pipProxy
-      self.videoDisplay = IMAAVPlayerVideoDisplay(
-        avPlayer: avPlayer,
-        nowPlayingSession: self.nowPlayingSession)
-    } else {
-      self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: avPlayer)
     }
+    self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: avPlayer)
     videoDisplay!.playerVideoDisplayDelegate = self
     let request: IMAStreamRequest
     if let liveStream = self.stream as? LiveStream {
@@ -161,9 +152,6 @@ class VideoPlayerViewController:
   func startMediaSession() {
     try? AVAudioSession.sharedInstance().setActive(true, options: [])
     try? AVAudioSession.sharedInstance().setCategory(.playback)
-    if #available(tvOS 14.0, *) {
-      self.nowPlayingSession.becomeActiveIfPossible(completion: nil)
-    }
   }
 
   // MARK: - UIFocusEnvironment

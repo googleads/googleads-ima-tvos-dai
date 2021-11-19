@@ -25,7 +25,6 @@
 #import "Stream.h"
 #import "VODStream.h"
 
-
 @interface VideoViewController () <IMAAdsLoaderDelegate,
                                    IMAStreamManagerDelegate,
                                    AVPlayerViewControllerDelegate,
@@ -36,7 +35,6 @@
 @property(nonatomic) id<IMAVideoDisplay> videoDisplay;
 @property(nonatomic) IMAPictureInPictureProxy *PIPProxy;
 @property(nonatomic) IMAStreamManager *streamManager;
-@property(nonatomic) MPNowPlayingSession *nowPlayingSession API_AVAILABLE(tvos(14.0));
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
 @property(nonatomic) CGFloat userSeekTime;
@@ -122,15 +120,9 @@
   if (@available(tvOS 14.0, *)) {
     self.PIPProxy = [[IMAPictureInPictureProxy alloc] initWithAVPlayerViewControllerDelegate:self];
     self.playerViewController.delegate = self.PIPProxy;
-    self.nowPlayingSession =
-        [[MPNowPlayingSession alloc] initWithPlayers:@[ self.playerViewController.player ]];
-    self.videoDisplay =
-        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player
-                                        nowPlayingSession:self.nowPlayingSession];
-  } else {
-    self.videoDisplay =
-        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   }
+  self.videoDisplay =
+      [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
   if ([self.stream isKindOfClass:[LiveStream class]]) {
@@ -164,9 +156,6 @@
 - (void)startMediaSession {
   [[AVAudioSession sharedInstance] setActive:YES error:nil];
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
-  if (@available(tvOS 14.0, *)) {
-    [self.nowPlayingSession becomeActiveIfPossibleWithCompletion:nil];
-  }
 }
 
 #pragma mark - UIFocusEnvironment

@@ -36,7 +36,6 @@ static NSString *const kBackupStreamURLString =
 @property(nonatomic) UIView *adContainerView;
 @property(nonatomic) id<IMAVideoDisplay> videoDisplay;
 @property(nonatomic) IMAStreamManager *streamManager;
-@property(nonatomic) MPNowPlayingSession *nowPlayingSession API_AVAILABLE(tvos(14.0));
 @property(nonatomic) AVPlayerViewController *playerViewController;
 @property(nonatomic, getter=isAdBreakActive) BOOL adBreakActive;
 @end
@@ -84,16 +83,8 @@ static NSString *const kBackupStreamURLString =
 }
 
 - (void)requestStream {
-  if (@available(tvOS 14.0, *)) {
-    self.nowPlayingSession =
-        [[MPNowPlayingSession alloc] initWithPlayers:@[ self.playerViewController.player ]];
-    self.videoDisplay =
-        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player
-                                        nowPlayingSession:self.nowPlayingSession];
-  } else {
-    self.videoDisplay =
-        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
-  }
+  self.videoDisplay =
+      [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
   IMALiveStreamRequest *request =
@@ -121,9 +112,6 @@ static NSString *const kBackupStreamURLString =
 - (void)startMediaSession {
   [[AVAudioSession sharedInstance] setActive:YES error:nil];
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
-  if (@available(tvOS 14.0, *)) {
-    [self.nowPlayingSession becomeActiveIfPossibleWithCompletion:nil];
-  }
 }
 
 #pragma mark - UIFocusEnvironment
