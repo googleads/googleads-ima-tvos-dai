@@ -21,7 +21,7 @@
 #import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
 
 // Live stream asset key, VOD content source and video IDs, and backup content URL.
-static NSString *const kAssetKey = @"sN_IYUG8STe1ZzhIIE_ksA";
+static NSString *const kAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
 static NSString *const kContentSourceID = @"19463";
 static NSString *const kVideoID = @"googleio-highlights";
 static NSString *const kBackupStreamURLString =

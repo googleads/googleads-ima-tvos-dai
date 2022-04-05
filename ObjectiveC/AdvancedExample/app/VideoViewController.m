@@ -272,7 +272,7 @@
 - (void)playerViewController:(AVPlayerViewController *)playerViewController
     willTransitionToVisibilityOfTransportBar:(BOOL)visible
                     withAnimationCoordinator:
-                        (id<AVPlayerViewControllerAnimationCoordinator>)coordinator {
+                        (id<UIViewControllerTransitionCoordinator>)coordinator {
   // Transfer focus from the ad display container to the content player, for the user to access
   // PiP controls.
   self.transportBarVisible = visible;

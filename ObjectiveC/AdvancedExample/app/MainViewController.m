@@ -38,7 +38,7 @@
   self.playerViewController = [[VideoViewController alloc] init];
 
  self.streams = @[
-    [[LiveStream alloc] initWithName:@"Live Stream" assetKey:@"sN_IYUG8STe1ZzhIIE_ksA"],
+    [[LiveStream alloc] initWithName:@"Live Stream" assetKey:@"c-rArva4ShKVIAkNfy6HUQ"],
     [[VODStream alloc] initWithName:@"VOD Stream"
                           contentID:@"19463"
                             videoID:@"googleio-highlights"],

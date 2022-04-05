@@ -30,8 +30,8 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     self.playerViewController = VideoPlayerViewController()
 
     streams = [
-      LiveStream(name: "Live Stream", assetKey: "sN_IYUG8STe1ZzhIIE_ksA"),
-      VODStream(name: "VOD Stream", cmsID: "2528370", videoID: "tears-of-steel"),
+      LiveStream(name: "Live Stream", assetKey: "c-rArva4ShKVIAkNfy6HUQ"),
+      VODStream(name: "VOD Stream", cmsID: "2548831", videoID: "tears-of-steel"),
     ]
 
     setUpTableView()
