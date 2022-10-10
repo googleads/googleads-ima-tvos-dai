@@ -103,7 +103,8 @@ static NSString *const kBackupStreamURLString =
 
 - (void)playBackupStream {
   NSURL *backupStreamURL = [NSURL URLWithString:kBackupStreamURLString];
-  AVPlayerItem *backupStreamItem = [AVPlayerItem playerItemWithURL:backupStreamURL];
+  // TODO(b/251453188): Fix unused variable
+  AVPlayerItem *__unused backupStreamItem = [AVPlayerItem playerItemWithURL:backupStreamURL];
   [self.videoDisplay loadStream:backupStreamURL withSubtitles:@[]];
   [self.videoDisplay play];
   [self startMediaSession];
