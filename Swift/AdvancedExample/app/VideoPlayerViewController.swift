@@ -127,7 +127,8 @@ class VideoPlayerViewController:
         assetKey: liveStream.assetKey,
         adDisplayContainer: adDisplayContainer,
         videoDisplay: self.videoDisplay,
-        pictureInPictureProxy: self.pipProxy)
+        pictureInPictureProxy: self.pipProxy,
+        userContext: nil)
       self.adsLoader!.requestStream(with: request)
     } else if let vodStream = self.stream as? VODStream {
       request = IMAVODStreamRequest(
@@ -135,7 +136,8 @@ class VideoPlayerViewController:
         videoID: vodStream.videoID,
         adDisplayContainer: adDisplayContainer,
         videoDisplay: self.videoDisplay,
-        pictureInPictureProxy: self.pipProxy)
+        pictureInPictureProxy: self.pipProxy,
+        userContext: nil)
       self.adsLoader!.requestStream(with: request)
     } else {
       assertionFailure("Unknown stream type selected")
