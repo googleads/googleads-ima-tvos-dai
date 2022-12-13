@@ -131,7 +131,8 @@
         [[IMALiveStreamRequest alloc] initWithAssetKey:liveStream.assetKey
                                     adDisplayContainer:self.adDisplayContainer
                                           videoDisplay:self.videoDisplay
-                                 pictureInPictureProxy:self.PIPProxy];
+                                 pictureInPictureProxy:self.PIPProxy
+                                           userContext:nil];
     [self.adsLoader requestStreamWithRequest:request];
   } else if ([self.stream isKindOfClass:[VODStream class]]) {
     VODStream *vodStream = (VODStream *)self.stream;
@@ -140,7 +141,8 @@
                                                      videoID:vodStream.videoID
                                           adDisplayContainer:self.adDisplayContainer
                                                 videoDisplay:self.videoDisplay
-                                       pictureInPictureProxy:self.PIPProxy];
+                                       pictureInPictureProxy:self.PIPProxy
+                                                 userContext:nil];
     [self.adsLoader requestStreamWithRequest:request];
   } else {
     NSLog(@"Error: unknown stream type");
