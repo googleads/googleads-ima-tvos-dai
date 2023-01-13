@@ -18,7 +18,7 @@
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 
-#import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
+@import GoogleInteractiveMediaAds;
 
 // Live stream asset key, VOD content source and video IDs, and backup content URL.
 static NSString *const kAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
@@ -90,14 +90,16 @@ static NSString *const kBackupStreamURLString =
   IMALiveStreamRequest *request =
       [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
                                   adDisplayContainer:self.adDisplayContainer
-                                        videoDisplay:self.videoDisplay];
+                                        videoDisplay:self.videoDisplay
+                                         userContext:nil];
   // VOD request. Comment out the IMALiveStreamRequest above and uncomment this IMAVODStreamRequest
   // to switch from a livestream to a VOD stream.
   // IMAVODStreamRequest *request =
   //     [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
   //                                                  videoID:kVideoID
   //                                       adDisplayContainer:self.adDisplayContainer
-  //                                             videoDisplay:self.videoDisplay];
+  //                                             videoDisplay:self.videoDisplay
+  //                                              userContext:nil];
   [self.adsLoader requestStreamWithRequest:request];
 }
 

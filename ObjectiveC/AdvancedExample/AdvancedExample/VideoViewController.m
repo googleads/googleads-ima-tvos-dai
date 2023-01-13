@@ -19,7 +19,7 @@
 #import <AVKit/AVKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 
-#import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
+@import GoogleInteractiveMediaAds;
 
 #import "LiveStream.h"
 #import "Stream.h"
