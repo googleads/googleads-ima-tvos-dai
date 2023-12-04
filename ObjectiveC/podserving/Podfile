@@ -1,6 +1,6 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-platform :tvos, '12'
+platform :tvos, '14'
 project 'PodservingExample.xcodeproj'
 
 target "PodservingExample" do
