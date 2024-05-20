@@ -1,0 +1,8 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+platform :tvos, '12'
+project 'PodservingExample.xcodeproj'
+
+target "PodservingExample" do
+  pod 'GoogleAds-IMA-tvOS-SDK'
+end
