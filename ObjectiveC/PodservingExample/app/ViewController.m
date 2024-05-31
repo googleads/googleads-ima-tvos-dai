@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,26 @@
 
 #import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
 
+// Enum for stream request type, below
+typedef enum {kLiveStream, kVODStream} streamType;
+
+/// Podserving stream request type. Either kLiveStream or kVODStream.
+static streamType const kRequestType = kLiveStream;
+/// Podserving stream Network Code.
+static NSString *const kNetworkCode = @"";
+/// Podserving custom asset key. For live streams only.
+static NSString *const kCustomAssetKey = @"";
+/// Podserving VTP API
+static NSString *(^gCustomVTPParser)(NSString *) = ^(NSString *streamID) {
+  // Insert synchronous code here to retrieve a stream manifest URL from your video tech partner
+  // or manifest manipulation server.
+  NSString *manifestUrl = @"";
+  return manifestUrl;
+};
+
 /// Fallback URL in case something goes wrong in loading the stream. If all goes well, this will not
 /// be used.
-static NSString *const kBackupStreamURLString =
-    @"http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/master.m3u8";  // NOLINT
-
-/// Podserving video stream URL.
-static NSString *const kStreamUrl =
-    @"https://encodersim.sandbox.google.com/masterPlaylist/9c654d63-5373-4673-8c8d-6d92b66b9d46/master.m3u8?gen-seg-redirect=true&network=51636543&event=google-sample&pids=devrel4628000,devrel896000,devrel3528000,devrel1428000,devrel2628000,devrel1928000&seg-host=dai.google.com&stream_id=[[STREAMID]]";  // NOLINT
-/// Podserving stream Network Code.
-static NSString *const kNetworkCode = @"51636543";
-/// Podserving custom asset key.
-static NSString *const kCustomAssetKey = @"google-sample";
+static NSString *const kBackupStreamURLString = @"";
 
 @interface ViewController () <IMAAdsLoaderDelegate,
                               IMAStreamManagerDelegate,
@@ -91,15 +99,26 @@ static NSString *const kCustomAssetKey = @"google-sample";
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
-  // Create a podserving stream request.
-  IMAPodStreamRequest *request =
-      [[IMAPodStreamRequest alloc] initWithNetworkCode:kNetworkCode
-                                        customAssetKey:kCustomAssetKey
-                                    adDisplayContainer:self.adDisplayContainer
-                                          videoDisplay:self.videoDisplay
-                                pictureInPictureProxy:nil
-                                           userContext:nil];
-  [self.adsLoader requestStreamWithRequest:request];
+  if (kRequestType == kLiveStream) {
+    // Podserving live stream request.
+    IMAPodStreamRequest *request =
+        [[IMAPodStreamRequest alloc] initWithNetworkCode:kNetworkCode
+                                          customAssetKey:kCustomAssetKey
+                                      adDisplayContainer:self.adDisplayContainer
+                                            videoDisplay:self.videoDisplay
+                                   pictureInPictureProxy:nil
+                                             userContext:nil];
+    [self.adsLoader requestStreamWithRequest:request];
+  } else {
+    // Podserving VOD stream request.
+    IMAPodVODStreamRequest *request =
+        [[IMAPodVODStreamRequest alloc] initWithNetworkCode:kNetworkCode
+                                         adDisplayContainer:self.adDisplayContainer
+                                               videoDisplay:self.videoDisplay
+                                      pictureInPictureProxy:nil
+                                                userContext:nil];
+    [self.adsLoader requestStreamWithRequest:request];
+  }
 }
 
 - (void)playBackupStream {
@@ -129,18 +148,25 @@ static NSString *const kCustomAssetKey = @"google-sample";
 #pragma mark - IMAAdsLoaderDelegate
 
 - (void)adsLoader:(IMAAdsLoader *)loader adsLoadedWithData:(IMAAdsLoadedData *)adsLoadedData {
-  // Build the Podserving Stream URL and load into AVPlayer
-  NSString *streamId = adsLoadedData.streamManager.streamId;
-  NSString *urlString = [kStreamUrl stringByReplacingOccurrencesOfString:@"[[STREAMID]]"
-                                                              withString:streamId];
-  NSURL *streamUrl = [NSURL URLWithString:urlString];
-  [self.videoDisplay loadStream:streamUrl withSubtitles:@[]];
-  [self.videoDisplay play];
-
   // Initialize and listen to stream manager's events.
   self.streamManager = adsLoadedData.streamManager;
-  self.streamManager.delegate = self;
+  // The stream manager must be initialized before playback for adsRenderingSettings to be
+  // respected.
   [self.streamManager initializeWithAdsRenderingSettings:nil];
+  self.streamManager.delegate = self;
+
+  // Build the Podserving Stream URL and load into AVPlayer
+  NSString *streamId = adsLoadedData.streamManager.streamId;
+  NSString *urlString = gCustomVTPParser(streamId);
+  NSURL *streamUrl = [NSURL URLWithString:urlString];
+  if (kRequestType == kLiveStream) {
+    [self.videoDisplay loadStream:streamUrl withSubtitles:@[]];
+    [self.videoDisplay play];
+  } else {
+    [self.streamManager loadThirdPartyStream:streamUrl streamSubtitles:@[]];
+    // There is no need to trigger playback here.
+    // streamManager.loadThirdPartyStream will load the stream, request metadata, and play
+  }
   NSLog(@"Stream created with: %@.", self.streamManager.streamId);
 }
 
