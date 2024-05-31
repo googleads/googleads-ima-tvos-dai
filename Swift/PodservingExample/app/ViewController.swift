@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,22 @@ class ViewController:
   IMAStreamManagerDelegate,
   AVPlayerViewControllerDelegate
 {
-  // Podserving video stream URL.
-  static let streamUrl =
-    "https://encodersim.sandbox.google.com/masterPlaylist/9c654d63-5373-4673-8c8d-6d92b66b9d46/master.m3u8?gen-seg-redirect=true&network=51636543&event=google-sample&pids=devrel4628000,devrel896000,devrel3528000,devrel1428000,devrel2628000,devrel1928000&seg-host=dai.google.com&stream_id=[[STREAMID]]"  //NOLINT
-  // Podserving stream Network Code.
-  static let networkCode = "51636543"
-  // Podserving custom asset key.
-  static let customAssetKey = "google-sample"
-  static let backupStreamURLString =
-    "http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/master.m3u8"  //NOLINT
+  enum StreamType { case liveStream, vodStream }
+  /// Podserving stream request type. Either `StreamType.liveStream` or `StreamType.vodStream`.
+  static let requestType = StreamType.liveStream
+  /// Podserving stream Network Code.
+  static let networkCode = ""
+  /// Podserving custom asset key. For livestreams only.
+  static let customAssetKey = ""
+  /// Podserving VTP API
+  static let customVTPParser = { (streamID: String) -> (String) in
+    // Insert synchronous code here to retrieve a stream manifest URL from your video tech partner
+    // or manifest manipulation server.
+    let manifestURL = ""
+    return manifestURL
+  }
+
+  static let backupStreamURLString = ""
 
   var adsLoader: IMAAdsLoader?
   var videoDisplay: IMAAVPlayerVideoDisplay!
@@ -107,16 +114,26 @@ class ViewController:
     adDisplayContainer = IMAAdDisplayContainer(
       adContainer: adContainerView, viewController: self)
 
-    // Create a podserving stream request.
-    let request = IMAPodStreamRequest(
-      networkCode: ViewController.networkCode,
-      customAssetKey: ViewController.customAssetKey,
-      adDisplayContainer: adDisplayContainer!,
-      videoDisplay: self.videoDisplay,
-      pictureInPictureProxy: nil,
-      userContext: nil)
-
-    adsLoader.requestStream(with: request)
+    if ViewController.requestType == StreamType.liveStream {
+      // Podserving live stream request.
+      let request = IMAPodStreamRequest(
+        networkCode: ViewController.networkCode,
+        customAssetKey: ViewController.customAssetKey,
+        adDisplayContainer: adDisplayContainer!,
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: nil,
+        userContext: nil)
+      adsLoader.requestStream(with: request)
+    } else {
+      // Podserving VOD stream request.
+      let request = IMAPodVODStreamRequest(
+        networkCode: ViewController.networkCode,
+        adDisplayContainer: adDisplayContainer!,
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: nil,
+        userContext: nil)
+      adsLoader.requestStream(with: request)
+    }
   }
 
   @objc func contentDidFinishPlaying(_ notification: Notification) {
@@ -143,29 +160,36 @@ class ViewController:
 
   // MARK: - IMAAdsLoaderDelegate
 
-  func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
-    let streamManager = adsLoadedData.streamManager!
-    let streamId = streamManager.streamId
-    let urlString =
-      ViewController.streamUrl.replacingOccurrences(of: "[[STREAMID]]", with: streamId!)
+  func adsLoader(_ loader: IMAAdsLoader, adsLoadedWith adsLoadedData: IMAAdsLoadedData) {
+    self.streamManager = adsLoadedData.streamManager!
+    self.streamManager!.delegate = self
+    // The stream manager must be initialized before playback for adsRenderingSettings to be
+    // respected.
+    self.streamManager!.initialize(with: nil)
+    let streamID = self.streamManager!.streamId
+    let urlString = ViewController.customVTPParser(streamID!)
     let streamUrl = URL(string: urlString)
-    self.videoDisplay.loadStream(streamUrl!, withSubtitles: [])
-    self.videoDisplay.play()
-    streamManager.delegate = self
-    streamManager.initialize(with: nil)
-    self.streamManager = streamManager
+    if ViewController.requestType == StreamType.liveStream {
+      self.videoDisplay.loadStream(streamUrl!, withSubtitles: [])
+      self.videoDisplay.play()
+    } else {
+      self.streamManager!.loadThirdPartyStream(streamUrl!, streamSubtitles: [])
+      // Skip calling self.videoDisplay.play() because the streamManager.loadThirdPartyStream()
+      // function will play the stream as soon as loading is completed.
+    }
   }
 
-  func adsLoader(_ loader: IMAAdsLoader!, failedWith adErrorData: IMAAdLoadingErrorData!) {
-    print("Error loading ads: \(adErrorData.adError.message)")
+  func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
+    if adErrorData.adError.message != nil {
+      print("Error loading ads: \(adErrorData.adError.message!)")
+    }
     let streamUrl = URL(string: ViewController.backupStreamURLString)
     self.videoDisplay.loadStream(streamUrl!, withSubtitles: [])
     self.videoDisplay.play()
-    playerViewController.player?.play()
   }
 
   // MARK: - IMAStreamManagerDelegate
-  func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
+  func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
     print("StreamManager event \(event.typeString).")
     switch event.type {
     case IMAAdEventType.STREAM_STARTED:
@@ -182,7 +206,7 @@ class ViewController:
           ad.adPodInfo.isBumper ? "YES" : "NO",
           ad.adTitle,
           ad.adDescription,
-          ad.contentType,
+          ad.contentType != "" ? ad.contentType : "No creative or media was selected for this ad",
           ad.adPodInfo.podIndex,
           ad.adPodInfo.timeOffset,
           ad.adPodInfo.maxDuration)
@@ -215,7 +239,7 @@ class ViewController:
     }
   }
 
-  func streamManager(_ streamManager: IMAStreamManager!, didReceive error: IMAAdError!) {
+  func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
     print("StreamManager error: \(error.message ?? "Unknown Error")")
   }
 
