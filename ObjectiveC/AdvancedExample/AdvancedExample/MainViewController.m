@@ -33,7 +33,7 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   NSLog(@"setting up main view controller");
-  self.view.backgroundColor = UIColor.whiteColor;
+  self.view.backgroundColor = UIColor.grayColor;
 
   self.playerViewController = [[VideoViewController alloc] init];
 
