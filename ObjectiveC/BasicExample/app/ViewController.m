@@ -20,10 +20,18 @@
 
 @import GoogleInteractiveMediaAds;
 
-// Live stream asset key, VOD content source and video IDs, and backup content URL.
+// Enum for stream request type, below
+typedef enum {kLiveStream, kVODStream} streamType;
+
+/// Specifies the ad pod stream type; either `StreamType.liveStream` or `StreamType.vodStream`.
+static streamType const kRequestType = kLiveStream;
+/// Live stream asset key.
 static NSString *const kAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
-static NSString *const kContentSourceID = @"19463";
-static NSString *const kVideoID = @"googleio-highlights";
+/// VOD stream content source ID.
+static NSString *const kContentSourceID = @"2548831";
+/// VOD stream video ID.
+static NSString *const kVideoID = @"tears-of-steel";
+/// Backup content URL
 static NSString *const kBackupStreamURLString =
     @"http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/"
     @"master.m3u8";
@@ -87,26 +95,25 @@ static NSString *const kBackupStreamURLString =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
-  IMALiveStreamRequest *request =
-      [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
-                                  adDisplayContainer:self.adDisplayContainer
-                                        videoDisplay:self.videoDisplay
-                                         userContext:nil];
-  // VOD request. Comment out the IMALiveStreamRequest above and uncomment this IMAVODStreamRequest
-  // to switch from a livestream to a VOD stream.
-  // IMAVODStreamRequest *request =
-  //     [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
-  //                                                  videoID:kVideoID
-  //                                       adDisplayContainer:self.adDisplayContainer
-  //                                             videoDisplay:self.videoDisplay
-  //                                              userContext:nil];
-  [self.adsLoader requestStreamWithRequest:request];
+  IMAStreamRequest *streamRequest;
+    if (kRequestType == kLiveStream) {
+      streamRequest = [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
+                                                  adDisplayContainer:self.adDisplayContainer
+                                                        videoDisplay:self.videoDisplay
+                                                         userContext:nil];
+  } else {
+    streamRequest = [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
+                                                                 videoID:kVideoID
+                                                      adDisplayContainer:self.adDisplayContainer
+                                                            videoDisplay:self.videoDisplay
+                                                             userContext:nil];
+  }
+
+  [self.adsLoader requestStreamWithRequest:streamRequest];
 }
 
 - (void)playBackupStream {
   NSURL *backupStreamURL = [NSURL URLWithString:kBackupStreamURLString];
-  // TODO(b/251453188): Fix unused variable
-  AVPlayerItem *__unused backupStreamItem = [AVPlayerItem playerItemWithURL:backupStreamURL];
   [self.videoDisplay loadStream:backupStreamURL withSubtitles:@[]];
   [self.videoDisplay play];
   [self startMediaSession];

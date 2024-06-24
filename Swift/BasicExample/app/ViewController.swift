@@ -17,18 +17,27 @@ import AVFoundation
 import GoogleInteractiveMediaAds
 import UIKit
 
+// The main view controller for the sample app.
 class ViewController:
   UIViewController,
   IMAAdsLoaderDelegate,
   IMAStreamManagerDelegate,
   AVPlayerViewControllerDelegate
 {
-  // Live stream asset key, VOD content source and video IDs, and backup content URL.
+  enum StreamType { case liveStream, vodStream }
+  /// Specifies the ad pod stream type; either `StreamType.liveStream` or `StreamType.vodStream`.
+  static let requestType = StreamType.liveStream
+  /// Livestream custom asset key.
   static let assetKey = "c-rArva4ShKVIAkNfy6HUQ"
-  static let contentSourceID = "19463"
-  static let videoID = @"googleio-highlights"
-  static let backupStreamURLString =
-    "http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/master.m3u8"  //NOLINT
+  /// VOD stream content source ID.
+  static let contentSourceID = "2548831"
+  /// VOD stream video ID.
+  static let videoID = "tears-of-steel"
+  /// Backup content URL
+  static let backupStreamURLString = """
+    http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/\
+    bbb-,480p,720p,1080p,.mov.csmil/master.m3u8
+    """
 
   var adsLoader: IMAAdsLoader?
   var videoDisplay: IMAAVPlayerVideoDisplay!
@@ -103,27 +112,27 @@ class ViewController:
     self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: playerViewController.player!)
     adDisplayContainer = IMAAdDisplayContainer(
       adContainer: adContainerView, viewController: self)
+    let streamRequest: IMAStreamRequest
+    if ViewController.requestType == StreamType.liveStream {
+      // Live stream request.
+      streamRequest = IMALiveStreamRequest(
+        assetKey: ViewController.assetKey,
+        adDisplayContainer: adDisplayContainer!,
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: nil,
+        userContext: nil)
+    } else {
+      // VOD stream request.
+      streamRequest = IMAVODStreamRequest(
+        contentSourceID: ViewController.contentSourceID,
+        videoID: ViewController.videoID,
+        adDisplayContainer: adDisplayContainer!,
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: nil,
+        userContext: nil)
+    }
 
-    // Create a live stream request.
-    let request = IMALiveStreamRequest(
-      assetKey: ViewController.assetKey,
-      adDisplayContainer: adDisplayContainer!,
-      videoDisplay: self.videoDisplay,
-      pictureInPictureProxy: nil,
-      userContext: nil)
-
-    // Uncomment this block to create a VOD steam request instead.
-    /*
-    let request = IMAVODStreamRequest(
-      contentSourceID: ViewController.contentSourceID,
-      videoID: ViewController.videoID,
-      adDisplayContainer: adDisplayContainer!,
-      videoDisplay: self.videoDisplay,
-      pictureInPictureProxy: nil,
-      userContext: nil)
-    */
-
-    adsLoader.requestStream(with: request)
+    adsLoader.requestStream(with: streamRequest)
   }
 
   @objc func contentDidFinishPlaying(_ notification: Notification) {

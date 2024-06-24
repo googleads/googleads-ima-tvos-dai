@@ -22,13 +22,13 @@
 // Enum for stream request type, below
 typedef enum {kLiveStream, kVODStream} streamType;
 
-/// Podserving stream request type. Either kLiveStream or kVODStream.
+/// Specifies the ad pod stream type; either `StreamType.liveStream` or `StreamType.vodStream`.
 static streamType const kRequestType = kLiveStream;
-/// Podserving stream Network Code.
+/// Google Ad Manager network code.
 static NSString *const kNetworkCode = @"";
-/// Podserving custom asset key. For live streams only.
+/// Livestream custom asset key.
 static NSString *const kCustomAssetKey = @"";
-/// Podserving VTP API
+/// Returns the stream manifest URL from the video technical partner or manifest manipulator.
 static NSString *(^gCustomVTPParser)(NSString *) = ^(NSString *streamID) {
   // Insert synchronous code here to retrieve a stream manifest URL from your video tech partner
   // or manifest manipulation server.
@@ -99,26 +99,24 @@ static NSString *const kBackupStreamURLString = @"";
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
+  IMAStreamRequest *streamRequest;
   if (kRequestType == kLiveStream) {
     // Podserving live stream request.
-    IMAPodStreamRequest *request =
-        [[IMAPodStreamRequest alloc] initWithNetworkCode:kNetworkCode
-                                          customAssetKey:kCustomAssetKey
-                                      adDisplayContainer:self.adDisplayContainer
-                                            videoDisplay:self.videoDisplay
-                                   pictureInPictureProxy:nil
-                                             userContext:nil];
-    [self.adsLoader requestStreamWithRequest:request];
+    streamRequest = [[IMAPodStreamRequest alloc] initWithNetworkCode:kNetworkCode
+                                                      customAssetKey:kCustomAssetKey
+                                                  adDisplayContainer:self.adDisplayContainer
+                                                        videoDisplay:self.videoDisplay
+                                              pictureInPictureProxy:nil
+                                                        userContext:nil];
   } else {
     // Podserving VOD stream request.
-    IMAPodVODStreamRequest *request =
-        [[IMAPodVODStreamRequest alloc] initWithNetworkCode:kNetworkCode
-                                         adDisplayContainer:self.adDisplayContainer
-                                               videoDisplay:self.videoDisplay
-                                      pictureInPictureProxy:nil
-                                                userContext:nil];
-    [self.adsLoader requestStreamWithRequest:request];
+    streamRequest = [[IMAPodVODStreamRequest alloc] initWithNetworkCode:kNetworkCode
+                                                     adDisplayContainer:self.adDisplayContainer
+                                                           videoDisplay:self.videoDisplay
+                                                  pictureInPictureProxy:nil
+                                                            userContext:nil];
   }
+  [self.adsLoader requestStreamWithRequest:streamRequest];
 }
 
 - (void)playBackupStream {
