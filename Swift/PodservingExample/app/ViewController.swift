@@ -24,13 +24,13 @@ class ViewController:
   AVPlayerViewControllerDelegate
 {
   enum StreamType { case liveStream, vodStream }
-  /// Podserving stream request type. Either `StreamType.liveStream` or `StreamType.vodStream`.
+  /// Specifies the ad pod stream type; either `StreamType.liveStream` or `StreamType.vodStream`.
   static let requestType = StreamType.liveStream
-  /// Podserving stream Network Code.
+  /// Google Ad Manager network code.
   static let networkCode = ""
-  /// Podserving custom asset key. For livestreams only.
+  /// Livestream custom asset key.
   static let customAssetKey = ""
-  /// Podserving VTP API
+  /// Returns the stream manifest URL from the video technical partner or manifest manipulator.
   static let customVTPParser = { (streamID: String) -> (String) in
     // Insert synchronous code here to retrieve a stream manifest URL from your video tech partner
     // or manifest manipulation server.
