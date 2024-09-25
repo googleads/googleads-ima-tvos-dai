@@ -3,25 +3,21 @@
   archiveVersion = 1;
   classes = {
   };
-  objectVersion = 51;
+  objectVersion = 50;
   objects = {
 
 /* Begin PBXBuildFile section */
-    C7B0262FB6644A3ABE00B648 /* libPods-PodservingExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A7EDE97B02BE38F086895B4E /* libPods-PodservingExample.a */; };
     D21414D725755FA90019940F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21414D625755FA90019940F /* AppDelegate.swift */; };
     D21414D925755FA90019940F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21414D825755FA90019940F /* ViewController.swift */; };
     D21414DE25755FAA0019940F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D21414DD25755FAA0019940F /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-    A7EDE97B02BE38F086895B4E /* libPods-PodservingExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-PodservingExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-    B8F57A6FE0CFC97F17FEE6EB /* Pods-PodservingExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PodservingExample.debug.xcconfig"; path = "Target Support Files/Pods-PodservingExample/Pods-PodservingExample.debug.xcconfig"; sourceTree = "<group>"; };
-    D21414D325755FA90019940F /* PodservingExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PodservingExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+    D21414D325755FA90019940F /* BasicExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BasicExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
     D21414D625755FA90019940F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
     D21414D825755FA90019940F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
     D21414DD25755FAA0019940F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
     D21414E225755FAA0019940F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-    F84B0FECEAECB1EC6B4E23A1 /* Pods-PodservingExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PodservingExample.release.xcconfig"; path = "Target Support Files/Pods-PodservingExample/Pods-PodservingExample.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -29,26 +25,15 @@
       isa = PBXFrameworksBuildPhase;
       buildActionMask = 2147483647;
       files = (
-        C7B0262FB6644A3ABE00B648 /* libPods-PodservingExample.a in Frameworks */,
       );
       runOnlyForDeploymentPostprocessing = 0;
     };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-    A14D675221A1958C9A295DF7 /* Frameworks */ = {
-      isa = PBXGroup;
-      children = (
-        A7EDE97B02BE38F086895B4E /* libPods-PodservingExample.a */,
-      );
-      name = Frameworks;
-      sourceTree = "<group>";
-    };
     B6E36F2E97DDFE384727AD6E /* Pods */ = {
       isa = PBXGroup;
       children = (
-        B8F57A6FE0CFC97F17FEE6EB /* Pods-PodservingExample.debug.xcconfig */,
-        F84B0FECEAECB1EC6B4E23A1 /* Pods-PodservingExample.release.xcconfig */,
       );
       path = Pods;
       sourceTree = "<group>";
@@ -59,14 +44,13 @@
         D21414D525755FA90019940F /* app */,
         D21414D425755FA90019940F /* Products */,
         B6E36F2E97DDFE384727AD6E /* Pods */,
-        A14D675221A1958C9A295DF7 /* Frameworks */,
       );
       sourceTree = "<group>";
     };
     D21414D425755FA90019940F /* Products */ = {
       isa = PBXGroup;
       children = (
-        D21414D325755FA90019940F /* PodservingExample.app */,
+        D21414D325755FA90019940F /* BasicExample.app */,
       );
       name = Products;
       sourceTree = "<group>";
@@ -85,23 +69,21 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-    D21414D225755FA90019940F /* app */ = {
+    D21414D225755FA90019940F /* BasicExample */ = {
       isa = PBXNativeTarget;
-      buildConfigurationList = D21414E525755FAA0019940F /* Build configuration list for PBXNativeTarget "PodservingExample" */;
+      buildConfigurationList = D21414E525755FAA0019940F /* Build configuration list for PBXNativeTarget "BasicExample" */;
       buildPhases = (
-        CD20F832DC7FAB06A4894496 /* [CP] Check Pods Manifest.lock */,
         D21414CF25755FA90019940F /* Sources */,
         D21414D025755FA90019940F /* Frameworks */,
         D21414D125755FA90019940F /* Resources */,
-        C091F66F6F07C83FD7CABF8A /* [CP] Embed Pods Frameworks */,
       );
       buildRules = (
       );
       dependencies = (
       );
-      name = PodservingExample;
+      name = BasicExample;
       productName = PodservingExample;
-      productReference = D21414D325755FA90019940F /* PodservingExample.app */;
+      productReference = D21414D325755FA90019940F /* BasicExample.app */;
       productType = "com.apple.product-type.application";
     };
 /* End PBXNativeTarget section */
@@ -118,7 +100,7 @@
           };
         };
       };
-      buildConfigurationList = D21414CE25755FA90019940F /* Build configuration list for PBXProject "app" */;
+      buildConfigurationList = D21414CE25755FA90019940F /* Build configuration list for PBXProject "BasicExample" */;
       compatibilityVersion = "Xcode 9.3";
       developmentRegion = en;
       hasScannedForEncodings = 0;
@@ -131,7 +113,7 @@
       projectDirPath = "";
       projectRoot = "";
       targets = (
-        D21414D225755FA90019940F /* PodservingExample */,
+        D21414D225755FA90019940F /* BasicExample */,
       );
     };
 /* End PBXProject section */
@@ -146,48 +128,6 @@
       runOnlyForDeploymentPostprocessing = 0;
     };
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-    C091F66F6F07C83FD7CABF8A /* [CP] Embed Pods Frameworks */ = {
-      isa = PBXShellScriptBuildPhase;
-      buildActionMask = 2147483647;
-      files = (
-      );
-      inputFileListPaths = (
-        "${PODS_ROOT}/Target Support Files/Pods-PodservingExample/Pods-PodservingExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-      );
-      name = "[CP] Embed Pods Frameworks";
-      outputFileListPaths = (
-        "${PODS_ROOT}/Target Support Files/Pods-PodservingExample/Pods-PodservingExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-      );
-      runOnlyForDeploymentPostprocessing = 0;
-      shellPath = /bin/sh;
-      shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PodservingExample/Pods-PodservingExample-frameworks.sh\"\n";
-      showEnvVarsInLog = 0;
-    };
-    CD20F832DC7FAB06A4894496 /* [CP] Check Pods Manifest.lock */ = {
-      isa = PBXShellScriptBuildPhase;
-      buildActionMask = 2147483647;
-      files = (
-      );
-      inputFileListPaths = (
-      );
-      inputPaths = (
-        "${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-        "${PODS_ROOT}/Manifest.lock",
-      );
-      name = "[CP] Check Pods Manifest.lock";
-      outputFileListPaths = (
-      );
-      outputPaths = (
-        "$(DERIVED_FILE_DIR)/Pods-PodservingExample-checkManifestLockResult.txt",
-      );
-      runOnlyForDeploymentPostprocessing = 0;
-      shellPath = /bin/sh;
-      shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-      showEnvVarsInLog = 0;
-    };
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
     D21414CF25755FA90019940F /* Sources */ = {
@@ -320,7 +260,6 @@
     };
     D21414E625755FAA0019940F /* Debug */ = {
       isa = XCBuildConfiguration;
-      baseConfigurationReference = B8F57A6FE0CFC97F17FEE6EB /* Pods-PodservingExample.debug.xcconfig */;
       buildSettings = {
         ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -331,7 +270,7 @@
           "$(inherited)",
           "@executable_path/Frameworks",
         );
-        PRODUCT_BUNDLE_IDENTIFIER = google.example.PodservingExample;
+        PRODUCT_BUNDLE_IDENTIFIER = google.example.BasicExample;
         PRODUCT_NAME = "$(TARGET_NAME)";
         SWIFT_VERSION = 5.0;
         TARGETED_DEVICE_FAMILY = 3;
@@ -340,7 +279,6 @@
     };
     D21414E725755FAA0019940F /* Release */ = {
       isa = XCBuildConfiguration;
-      baseConfigurationReference = F84B0FECEAECB1EC6B4E23A1 /* Pods-PodservingExample.release.xcconfig */;
       buildSettings = {
         ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -351,7 +289,7 @@
           "$(inherited)",
           "@executable_path/Frameworks",
         );
-        PRODUCT_BUNDLE_IDENTIFIER = google.example.PodservingExample;
+        PRODUCT_BUNDLE_IDENTIFIER = google.example.BasicExample;
         PRODUCT_NAME = "$(TARGET_NAME)";
         SWIFT_VERSION = 5.0;
         TARGETED_DEVICE_FAMILY = 3;
@@ -361,7 +299,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-    D21414CE25755FA90019940F /* Build configuration list for PBXProject "PodservingExample" */ = {
+    D21414CE25755FA90019940F /* Build configuration list for PBXProject "BasicExample" */ = {
       isa = XCConfigurationList;
       buildConfigurations = (
         D21414E325755FAA0019940F /* Debug */,
@@ -370,7 +308,7 @@
       defaultConfigurationIsVisible = 0;
       defaultConfigurationName = Release;
     };
-    D21414E525755FAA0019940F /* Build configuration list for PBXNativeTarget "PodservingExample" */ = {
+    D21414E525755FAA0019940F /* Build configuration list for PBXNativeTarget "BasicExample" */ = {
       isa = XCConfigurationList;
       buildConfigurations = (
         D21414E625755FAA0019940F /* Debug */,
