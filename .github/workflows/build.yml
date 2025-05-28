@@ -20,7 +20,12 @@ jobs:
         regex:
         - "ObjectiveC/BasicExample"
         - "ObjectiveC/AdvancedExample"
+        - "ObjectiveC/PodservingExample"
+        - "ObjectiveC/VideoStitcherExample"
+        - "Swift/BasicExample"
         - "Swift/AdvancedExample"
+        - "Swift/PodservingExample"
+        - "Swift/VideoStitcherExample"
     steps:
       - name: Clone Repo
         uses: actions/checkout@v1
