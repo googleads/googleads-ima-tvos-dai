@@ -19,11 +19,13 @@
 class VODStream: Stream {
   var cmsID: String
   var videoID: String
+  var networkCode: String
   var bookmark = 0.0
 
-  init(name: String, cmsID: String, videoID: String, apiKey: String? = nil) {
+  init(name: String, cmsID: String, videoID: String, networkCode: String, apiKey: String? = nil) {
     self.cmsID = cmsID
     self.videoID = videoID
+    self.networkCode = networkCode
     super.init(name: name, apiKey: apiKey)
   }
 }

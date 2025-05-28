@@ -22,8 +22,9 @@
 
 // Live stream asset key, VOD content source and video IDs, and backup content URL.
 static NSString *const kAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
-static NSString *const kContentSourceID = @"19463";
-static NSString *const kVideoID = @"googleio-highlights";
+static NSString *const kContentSourceID = @"2548831";
+static NSString *const kVideoID = @"tears-of-steel";
+static NSString *const kNetworkCode = @"21775744923";
 static NSString *const kBackupStreamURLString =
     @"http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/"
     @"master.m3u8";
@@ -89,6 +90,7 @@ static NSString *const kBackupStreamURLString =
                                                                 viewController:self];
   IMALiveStreamRequest *request =
       [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
+                                         networkCode:kNetworkCode
                                   adDisplayContainer:self.adDisplayContainer
                                         videoDisplay:self.videoDisplay
                                          userContext:nil];
@@ -97,6 +99,7 @@ static NSString *const kBackupStreamURLString =
   // IMAVODStreamRequest *request =
   //     [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
   //                                                  videoID:kVideoID
+  //                                              networkCode:kNetworkCode
   //                                       adDisplayContainer:self.adDisplayContainer
   //                                             videoDisplay:self.videoDisplay
   //                                              userContext:nil];

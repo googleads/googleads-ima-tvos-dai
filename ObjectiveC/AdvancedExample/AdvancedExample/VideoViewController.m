@@ -129,6 +129,7 @@
     LiveStream *liveStream = (LiveStream *)self.stream;
     IMALiveStreamRequest *request =
         [[IMALiveStreamRequest alloc] initWithAssetKey:liveStream.assetKey
+                                           networkCode:liveStream.networkCode
                                     adDisplayContainer:self.adDisplayContainer
                                           videoDisplay:self.videoDisplay
                                  pictureInPictureProxy:self.PIPProxy
@@ -139,6 +140,7 @@
     IMAVODStreamRequest *request =
         [[IMAVODStreamRequest alloc] initWithContentSourceID:vodStream.contentID
                                                      videoID:vodStream.videoID
+                                                 networkCode:vodStream.networkCode
                                           adDisplayContainer:self.adDisplayContainer
                                                 videoDisplay:self.videoDisplay
                                        pictureInPictureProxy:self.PIPProxy

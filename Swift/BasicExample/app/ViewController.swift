@@ -23,12 +23,14 @@ class ViewController:
   IMAStreamManagerDelegate,
   AVPlayerViewControllerDelegate
 {
-  // Live stream asset key, VOD content source and video IDs, and backup content URL.
+  // Live stream asset key, VOD content source and video IDs, Google Ad Manager network code, and
+  // backup content URL.
   static let assetKey = "c-rArva4ShKVIAkNfy6HUQ"
-  static let contentSourceID = "19463"
-  static let videoID = @"googleio-highlights"
+  static let contentSourceID = "2548831"
+  static let videoID = "tears-of-steel"
+  static let networkCode = "21775744923"
   static let backupStreamURLString =
-    "http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/master.m3u8"  //NOLINT
+    "http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/master.m3u8"
 
   var adsLoader: IMAAdsLoader?
   var videoDisplay: IMAAVPlayerVideoDisplay!
@@ -107,21 +109,21 @@ class ViewController:
     // Create a live stream request.
     let request = IMALiveStreamRequest(
       assetKey: ViewController.assetKey,
+      networkCode: ViewController.networkCode,
       adDisplayContainer: adDisplayContainer!,
       videoDisplay: self.videoDisplay,
       pictureInPictureProxy: nil,
       userContext: nil)
 
-    // Uncomment this block to create a VOD steam request instead.
-    /*
-    let request = IMAVODStreamRequest(
-      contentSourceID: ViewController.contentSourceID,
-      videoID: ViewController.videoID,
-      adDisplayContainer: adDisplayContainer!,
-      videoDisplay: self.videoDisplay,
-      pictureInPictureProxy: nil,
-      userContext: nil)
-    */
+    // Uncomment this block to create a VOD stream request instead.
+    // let request = IMAVODStreamRequest(
+    //   contentSourceID: ViewController.contentSourceID,
+    //   videoID: ViewController.videoID,
+    //   networkCode: ViewController.networkCode,
+    //   adDisplayContainer: adDisplayContainer!,
+    //   videoDisplay: self.videoDisplay,
+    //   pictureInPictureProxy: nil,
+    //   userContext: nil)
 
     adsLoader.requestStream(with: request)
   }
@@ -150,14 +152,14 @@ class ViewController:
 
   // MARK: - IMAAdsLoaderDelegate
 
-  func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
+  func adsLoader(_ loader: IMAAdsLoader, adsLoadedWith adsLoadedData: IMAAdsLoadedData) {
     let streamManager = adsLoadedData.streamManager!
     streamManager.delegate = self
     streamManager.initialize(with: nil)
     self.streamManager = streamManager
   }
 
-  func adsLoader(_ loader: IMAAdsLoader!, failedWith adErrorData: IMAAdLoadingErrorData!) {
+  func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
     print("Error loading ads: \(adErrorData.adError.message)")
     let streamUrl = URL(string: ViewController.backupStreamURLString)
     self.videoDisplay.loadStream(streamUrl!, withSubtitles: [])
@@ -166,7 +168,7 @@ class ViewController:
   }
 
   // MARK: - IMAStreamManagerDelegate
-  func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
+  func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
     print("StreamManager event \(event.typeString).")
     switch event.type {
     case IMAAdEventType.STREAM_STARTED:
@@ -216,7 +218,7 @@ class ViewController:
     }
   }
 
-  func streamManager(_ streamManager: IMAStreamManager!, didReceive error: IMAAdError!) {
+  func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
     print("StreamManager error: \(error.message ?? "Unknown Error")")
   }
 

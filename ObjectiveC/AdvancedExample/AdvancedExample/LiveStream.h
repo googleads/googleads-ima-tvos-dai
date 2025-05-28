@@ -23,12 +23,16 @@
 @interface LiveStream : Stream
 
 @property(nonatomic, nonnull) NSString *assetKey;
+@property(nonatomic, nonnull) NSString *networkCode;
 
 /// Returns an initialized live stream video.
 - (instancetype)initWithName:(nonnull NSString *)name
                     assetKey:(nonnull NSString *)assetKey
+                 networkCode:(nonnull NSString *)networkCode
                       APIKey:(nullable NSString *)APIKey;
 
-- (instancetype)initWithName:(nonnull NSString *)name assetKey:(nonnull NSString *)assetKey;
+- (instancetype)initWithName:(nonnull NSString *)name
+                    assetKey:(nonnull NSString *)assetKey
+                 networkCode:(nonnull NSString *)networkCode;
 
 @end

@@ -23,11 +23,13 @@
 - (instancetype)initWithName:(nonnull NSString *)name
                    contentID:(nonnull NSString *)contentID
                      videoID:(nonnull NSString *)videoID
+                 networkCode:(nonnull NSString *)networkCode
                       APIKey:(nullable NSString *)APIKey {
   self = [[super init] initWithName:name APIKey:APIKey];
   if (self) {
     _contentID = [contentID copy];
     _videoID = [videoID copy];
+    _networkCode = [networkCode copy];
     _bookmark = 0.0;
   }
   return self;
@@ -35,8 +37,9 @@
 
 - (instancetype)initWithName:(nonnull NSString *)name
                    contentID:(nonnull NSString *)contentID
-                     videoID:(nonnull NSString *)videoID {
-  return [self initWithName:name contentID:contentID videoID:videoID APIKey:nil];
+                     videoID:(nonnull NSString *)videoID
+                 networkCode:(nonnull NSString *)networkCode {
+  return [self initWithName:name contentID:contentID videoID:videoID networkCode:networkCode APIKey:nil];
 }
 
 @end

@@ -219,7 +219,7 @@
         PROVISIONING_PROFILE_SPECIFIER = "";
         SDKROOT = appletvos;
         TARGETED_DEVICE_FAMILY = 3;
-        TVOS_DEPLOYMENT_TARGET = 9.2;
+        TVOS_DEPLOYMENT_TARGET = 14.0;
       };
       name = Debug;
     };
@@ -283,7 +283,7 @@
         PROVISIONING_PROFILE_SPECIFIER = "";
         SDKROOT = appletvos;
         TARGETED_DEVICE_FAMILY = 3;
-        TVOS_DEPLOYMENT_TARGET = 9.2;
+        TVOS_DEPLOYMENT_TARGET = 14.0;
         VALIDATE_PRODUCT = YES;
       };
       name = Release;

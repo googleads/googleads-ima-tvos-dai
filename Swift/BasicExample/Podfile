@@ -4,5 +4,5 @@ platform :tvos, '14'
 project 'BasicExample.xcodeproj'
 
 target "BasicExample" do
-  pod 'GoogleAds-IMA-tvOS-SDK'
+  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.15.1'
 end

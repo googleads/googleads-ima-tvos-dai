@@ -21,16 +21,20 @@
 
 - (instancetype)initWithName:(nonnull NSString *)name
                     assetKey:(nonnull NSString *)assetKey
+                 networkCode:(nonnull NSString *)networkCode
                       APIKey:(nullable NSString *)APIKey {
   self = [[super init] initWithName:name APIKey:APIKey];
   if (self) {
     _assetKey = [assetKey copy];
+    _networkCode = [networkCode copy];
   }
   return self;
 }
 
-- (instancetype)initWithName:(nonnull NSString *)name assetKey:(nonnull NSString *)assetKey {
-  return [self initWithName: name assetKey: assetKey APIKey:nil];
+- (instancetype)initWithName:(nonnull NSString *)name
+                    assetKey:(nonnull NSString *)assetKey
+                 networkCode:(nonnull NSString *)networkCode {
+  return [self initWithName: name assetKey: assetKey networkCode: networkCode APIKey:nil];
 }
 
 @end

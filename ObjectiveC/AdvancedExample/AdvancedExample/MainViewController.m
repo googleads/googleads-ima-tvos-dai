@@ -37,14 +37,14 @@
 
   self.playerViewController = [[VideoViewController alloc] init];
 
- self.streams = @[
-    [[LiveStream alloc] initWithName:@"Live Stream" assetKey:@"c-rArva4ShKVIAkNfy6HUQ"],
+  self.streams = @[
+    [[LiveStream alloc] initWithName:@"Live Stream"
+                            assetKey:@"c-rArva4ShKVIAkNfy6HUQ"
+                         networkCode:@"21775744923"],
     [[VODStream alloc] initWithName:@"VOD Stream"
-                          contentID:@"19463"
-                            videoID:@"googleio-highlights"],
-    [[VODStream alloc] initWithName:@"VOD Stream w/ Subtitles"
-                          contentID:@"19463"
-                            videoID:@"tears-of-steel"],
+                          contentID:@"2548831"
+                            videoID:@"tears-of-steel"
+                        networkCode:@"21775744923"],
   ];
 
   [self setUpTableView];

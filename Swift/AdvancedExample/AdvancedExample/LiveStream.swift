@@ -17,9 +17,11 @@
 /// Instances of the LiveStream class store information and status for live streams.
 class LiveStream: Stream {
   var assetKey: String
+  var networkCode: String
 
-  init(name: String, assetKey: String, apiKey: String? = nil) {
+  init(name: String, assetKey: String, networkCode: String, apiKey: String? = nil) {
     self.assetKey = assetKey
+    self.networkCode = networkCode
     super.init(name: name, apiKey: apiKey)
   }
 }

@@ -30,8 +30,15 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
     self.playerViewController = VideoPlayerViewController()
 
     streams = [
-      LiveStream(name: "Live Stream", assetKey: "c-rArva4ShKVIAkNfy6HUQ"),
-      VODStream(name: "VOD Stream", cmsID: "2548831", videoID: "tears-of-steel"),
+      LiveStream(
+        name: "Live Stream",
+        assetKey: "c-rArva4ShKVIAkNfy6HUQ",
+        networkCode: "21775744923"),
+      VODStream(
+        name: "VOD Stream",
+        cmsID: "2548831",
+        videoID: "tears-of-steel",
+        networkCode: "21775744923"),
     ]
 
     setUpTableView()
@@ -59,7 +66,9 @@ class MainViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
-    cell.textLabel?.text = "\(streams[indexPath.row].name)"
+    let textLabel = cell.textLabel
+    textLabel?.textColor = .black
+    textLabel?.text = "\(streams[indexPath.row].name ?? "Default stream")"
 
     return cell
   }

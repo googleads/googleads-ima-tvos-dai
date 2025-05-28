@@ -25,15 +25,18 @@
 
 @property(nonatomic, nonnull) NSString *contentID;
 @property(nonatomic, nonnull) NSString *videoID;
+@property(nonatomic, nonnull) NSString *networkCode;
 @property(nonatomic) CGFloat bookmark;
 
 - (instancetype)initWithName:(nonnull NSString *)name
                    contentID:(nonnull NSString *)contentID
                      videoID:(nonnull NSString *)videoID
+                 networkCode:(nonnull NSString *)networkCode
                       APIKey:(nullable NSString *)APIKey;
 
 - (instancetype)initWithName:(nonnull NSString *)name
                    contentID:(nonnull NSString *)contentID
-                     videoID:(nonnull NSString *)videoID;
+                     videoID:(nonnull NSString *)videoID
+                 networkCode:(nonnull NSString *)networkCode;
 
 @end

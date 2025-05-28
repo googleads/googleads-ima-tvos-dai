@@ -125,17 +125,21 @@ class VideoPlayerViewController:
     if let liveStream = self.stream as? LiveStream {
       request = IMALiveStreamRequest(
         assetKey: liveStream.assetKey,
+        networkCode: liveStream.networkCode,
         adDisplayContainer: adDisplayContainer,
         videoDisplay: self.videoDisplay,
-        pictureInPictureProxy: self.pipProxy)
+        pictureInPictureProxy: self.pipProxy,
+        userContext: nil)
       self.adsLoader!.requestStream(with: request)
     } else if let vodStream = self.stream as? VODStream {
       request = IMAVODStreamRequest(
         contentSourceID: vodStream.cmsID,
         videoID: vodStream.videoID,
+        networkCode: vodStream.networkCode,
         adDisplayContainer: adDisplayContainer,
         videoDisplay: self.videoDisplay,
-        pictureInPictureProxy: self.pipProxy)
+        pictureInPictureProxy: self.pipProxy,
+        userContext: nil)
       self.adsLoader!.requestStream(with: request)
     } else {
       assertionFailure("Unknown stream type selected")
@@ -171,20 +175,20 @@ class VideoPlayerViewController:
 
   // MARK: - IMAAdsLoaderDelegate
 
-  func adsLoader(_ loader: IMAAdsLoader!, adsLoadedWith adsLoadedData: IMAAdsLoadedData!) {
+  func adsLoader(_ loader: IMAAdsLoader, adsLoadedWith adsLoadedData: IMAAdsLoadedData) {
     // Grab the instance of the IMAAdsManager and set ourselves as the delegate.
     streamManager = adsLoadedData.streamManager
     streamManager!.delegate = self
     streamManager!.initialize(with: nil)
   }
 
-  func adsLoader(_ loader: IMAAdsLoader!, failedWith adErrorData: IMAAdLoadingErrorData!) {
+  func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
     print("Error loading ads: \(adErrorData.adError.message ?? "Unknown Error")")
     self.dismiss(animated: false, completion: nil)
   }
 
   // MARK: - IMAStreamManagerDelegate
-  func streamManager(_ streamManager: IMAStreamManager!, didReceive event: IMAAdEvent!) {
+  func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
     print("StreamManager event \(event.typeString).")
     switch event.type {
     case IMAAdEventType.STREAM_STARTED:
@@ -238,7 +242,7 @@ class VideoPlayerViewController:
     }
   }
 
-  func streamManager(_ streamManager: IMAStreamManager!, didReceive error: IMAAdError!) {
+  func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
     print("StreamManager error: \(error.message ?? "Unknown Error")")
     self.dismiss(animated: false, completion: nil)
   }
@@ -285,8 +289,8 @@ class VideoPlayerViewController:
   // MARK: - IMAAVPlayerVideoDisplayDelegate
 
   func playerVideoDisplay(
-    _ playerVideoDisplay: IMAAVPlayerVideoDisplay!,
-    didLoad playerItem: AVPlayerItem!
+    _ playerVideoDisplay: IMAAVPlayerVideoDisplay,
+    didLoad playerItem: AVPlayerItem
   ) {
     // load bookmark, if it exists (and we aren't playing a live stream)
     if let vodStream = stream as? VODStream {
