@@ -1,0 +1,8 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+platform :tvos, '17'
+project 'SGAIClientSideExample.xcodeproj'
+
+target "SGAIClientSideExample" do
+  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.15.1'
+end

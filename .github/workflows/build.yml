@@ -25,6 +25,7 @@ jobs:
         - "Swift/BasicExample"
         - "Swift/AdvancedExample"
         - "Swift/PodservingExample"
+        - "Swift/SGAIClientSideExample"
         - "Swift/VideoStitcherExample"
     steps:
       - name: Clone Repo
