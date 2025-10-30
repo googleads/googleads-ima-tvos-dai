@@ -4,5 +4,5 @@ platform :tvos, '17'
 project 'VideoStitcherExample.xcodeproj'
 
 target "VideoStitcherExample" do
-  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.15.1'
+  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.16.0'
 end
