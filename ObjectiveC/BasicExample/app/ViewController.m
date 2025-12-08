@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #import "ViewController.h"
 
 #import <AVKit/AVKit.h>
@@ -28,6 +29,7 @@ static NSString *const kNetworkCode = @"21775744923";
 static NSString *const kBackupStreamURLString =
     @"http://googleimadev-vh.akamaihd.net/i/big_buck_bunny/bbb-,480p,720p,1080p,.mov.csmil/"
     @"master.m3u8";
+static const StreamType kDefaultStreamType = StreamTypeLive;
 
 @interface ViewController () <IMAAdsLoaderDelegate,
                               IMAStreamManagerDelegate,
@@ -46,6 +48,7 @@ static NSString *const kBackupStreamURLString =
 - (void)viewDidLoad {
   [super viewDidLoad];
   self.view.backgroundColor = [UIColor blackColor];
+  self.streamType = kDefaultStreamType;
   [self setupAdsLoader];
   [self setupPlayer];
   [self setupAdContainer];
@@ -54,11 +57,6 @@ static NSString *const kBackupStreamURLString =
 - (void)viewDidAppear:(BOOL)animated {
   [super viewDidAppear:animated];
   [self requestStream];
-}
-
-- (void)setupAdsLoader {
-  self.adsLoader = [[IMAAdsLoader alloc] init];
-  self.adsLoader.delegate = self;
 }
 
 - (void)setupPlayer {
@@ -72,6 +70,11 @@ static NSString *const kBackupStreamURLString =
   [self.view addSubview:self.playerViewController.view];
   self.playerViewController.view.frame = self.view.bounds;
   [self.playerViewController didMoveToParentViewController:self];
+}
+
+- (void)setupAdsLoader {
+  self.adsLoader = [[IMAAdsLoader alloc] init];
+  self.adsLoader.delegate = self;
 }
 
 - (void)setupAdContainer {
@@ -88,28 +91,43 @@ static NSString *const kBackupStreamURLString =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
   self.adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView
                                                                 viewController:self];
-  IMALiveStreamRequest *request =
-      [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
-                                         networkCode:kNetworkCode
-                                  adDisplayContainer:self.adDisplayContainer
-                                        videoDisplay:self.videoDisplay
-                                         userContext:nil];
-  // VOD request. Comment out the IMALiveStreamRequest above and uncomment this IMAVODStreamRequest
-  // to switch from a livestream to a VOD stream.
-  // IMAVODStreamRequest *request =
-  //     [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
-  //                                                  videoID:kVideoID
-  //                                              networkCode:kNetworkCode
-  //                                       adDisplayContainer:self.adDisplayContainer
-  //                                             videoDisplay:self.videoDisplay
-  //                                              userContext:nil];
-  [self.adsLoader requestStreamWithRequest:request];
+
+  // Use the streamType property to determine which request to create.
+  IMAStreamRequest *request;
+
+  switch (self.streamType) {
+    case StreamTypeLive: {
+      request = [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
+                                                   networkCode:kNetworkCode
+                                            adDisplayContainer:self.adDisplayContainer
+                                                  videoDisplay:self.videoDisplay
+                                                   userContext:nil];
+      NSLog(@"IMA: Requesting Live Stream with Asset Key: %@.", kAssetKey);
+      break;
+    }
+    case StreamTypeVOD: {
+      request = [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
+                                                             videoID:kVideoID
+                                                         networkCode:kNetworkCode
+                                                  adDisplayContainer:self.adDisplayContainer
+                                                        videoDisplay:self.videoDisplay
+                                                         userContext:nil];
+      NSLog(@"IMA: Requesting VOD Stream with Video ID: %@.", kVideoID);
+      break;
+    }
+  }
+
+  if (request) {
+    [self.adsLoader requestStreamWithRequest:request];
+  } else {
+    // Fallback or error handling if no request object was created
+    NSLog(@"IMA Error: Could not create stream request for unknown type.");
+    [self playBackupStream];
+  }
 }
 
 - (void)playBackupStream {
   NSURL *backupStreamURL = [NSURL URLWithString:kBackupStreamURLString];
-  // TODO(b/251453188): Fix unused variable
-  AVPlayerItem *__unused backupStreamItem = [AVPlayerItem playerItemWithURL:backupStreamURL];
   [self.videoDisplay loadStream:backupStreamURL withSubtitles:@[]];
   [self.videoDisplay play];
   [self startMediaSession];

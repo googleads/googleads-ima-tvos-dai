@@ -13,7 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #import <UIKit/UIKit.h>
 
+/**
+ * The type of stream being played.
+ */
+typedef NS_ENUM(NSUInteger, StreamType) { StreamTypeLive, StreamTypeVOD };
+
+/**
+ * The main view controller for the sample app.
+ */
 @interface ViewController : UIViewController
+/**
+ * The type of stream to request.
+ */
+@property(nonatomic, assign) StreamType streamType;
 @end
