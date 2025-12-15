@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// [START ima_tvos_swift_import]
 import AVFoundation
 import GoogleInteractiveMediaAds
 import UIKit
 
+// [END ima_tvos_swift_import]
+
+// [START ima_tvos_swift_view_controller]
 class ViewController:
   UIViewController,
   IMAAdsLoaderDelegate,
@@ -42,6 +47,15 @@ class ViewController:
   private var userSeekTime = 0.0
   private var adBreakActive = false
 
+  private enum StreamType {
+    case live
+    /// Video on demand.
+    case vod
+  }
+
+  /// Set the stream type here.
+  private let currentStreamType: StreamType = .live
+
   deinit {
     NotificationCenter.default.removeObserver(self)
   }
@@ -58,12 +72,6 @@ class ViewController:
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     requestStream()
-  }
-
-  func setupAdsLoader() {
-    let adsLoader = IMAAdsLoader(settings: nil)
-    adsLoader.delegate = self
-    self.adsLoader = adsLoader
   }
 
   func setupPlayer() {
@@ -86,6 +94,14 @@ class ViewController:
     playerViewController.didMove(toParent: self)
     self.playerViewController = playerViewController
   }
+  // [END ima_tvos_swift_view_controller]
+
+  // [START ima_tvos_swift_ads_loader]
+  func setupAdsLoader() {
+    let adsLoader = IMAAdsLoader(settings: nil)
+    adsLoader.delegate = self
+    self.adsLoader = adsLoader
+  }
 
   func setupAdContainer() {
     // Attach the ad container to the view hierarchy on top of the player.
@@ -96,38 +112,54 @@ class ViewController:
     adContainerView.isHidden = true
     self.adContainerView = adContainerView
   }
+  // [END ima_tvos_swift_ads_loader]
 
+  // [START ima_tvos_swift_request_stream]
   func requestStream() {
     guard let playerViewController = self.playerViewController else { return }
     guard let adContainerView = self.adContainerView else { return }
     guard let adsLoader = self.adsLoader else { return }
 
     self.videoDisplay = IMAAVPlayerVideoDisplay(avPlayer: playerViewController.player!)
-    adDisplayContainer = IMAAdDisplayContainer(
+    let adDisplayContainer = IMAAdDisplayContainer(
       adContainer: adContainerView, viewController: self)
+    self.adDisplayContainer = adDisplayContainer
 
-    // Create a live stream request.
-    let request = IMALiveStreamRequest(
-      assetKey: ViewController.assetKey,
-      networkCode: ViewController.networkCode,
-      adDisplayContainer: adDisplayContainer!,
-      videoDisplay: self.videoDisplay,
-      pictureInPictureProxy: nil,
-      userContext: nil)
+    // Variable to hold the specific stream request object.
+    let request: IMAStreamRequest
 
-    // Uncomment this block to create a VOD stream request instead.
-    // let request = IMAVODStreamRequest(
-    //   contentSourceID: ViewController.contentSourceID,
-    //   videoID: ViewController.videoID,
-    //   networkCode: ViewController.networkCode,
-    //   adDisplayContainer: adDisplayContainer!,
-    //   videoDisplay: self.videoDisplay,
-    //   pictureInPictureProxy: nil,
-    //   userContext: nil)
+    switch self.currentStreamType {
+    case .live:
+      // Create a live stream request.
+      request = IMALiveStreamRequest(
+        assetKey: ViewController.assetKey,
+        networkCode: ViewController.networkCode,
+        adDisplayContainer: adDisplayContainer,
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: nil,
+        userContext: nil)
+      print("IMA: Requesting Live Stream with asset key \(ViewController.assetKey)")
+
+    case .vod:
+      // Create a VOD stream request.
+      request = IMAVODStreamRequest(
+        contentSourceID: ViewController.contentSourceID,
+        videoID: ViewController.videoID,
+        networkCode: ViewController.networkCode,
+        adDisplayContainer: adDisplayContainer,
+        videoDisplay: self.videoDisplay,
+        pictureInPictureProxy: nil,
+        userContext: nil)
+      print(
+        "IMA: Requesting VOD Stream with content source ID \(ViewController.contentSourceID) and "
+          + "video ID \(ViewController.videoID)")
+    }
 
     adsLoader.requestStream(with: request)
   }
+  // [END ima_tvos_swift_request_stream]
 
+  // [START ima_tvos_swift_stream_events]
   @objc func contentDidFinishPlaying(_ notification: Notification) {
     guard let adsLoader = self.adsLoader else { return }
     adsLoader.contentComplete()
@@ -136,18 +168,6 @@ class ViewController:
   func startMediaSession() {
     try? AVAudioSession.sharedInstance().setActive(true, options: [])
     try? AVAudioSession.sharedInstance().setCategory(.playback)
-  }
-
-  // MARK: - UIFocusEnvironment
-
-  override var preferredFocusEnvironments: [UIFocusEnvironment] {
-    if adBreakActive, let adFocusEnvironment = adDisplayContainer?.focusEnvironment {
-      // Send focus to the ad display container during an ad break.
-      return [adFocusEnvironment]
-    } else {
-      // Send focus to the content player otherwise.
-      return [playerViewController]
-    }
   }
 
   // MARK: - IMAAdsLoaderDelegate
@@ -166,7 +186,9 @@ class ViewController:
     self.videoDisplay.play()
     playerViewController.player?.play()
   }
+  // [END ima_tvos_swift_stream_events]
 
+  // [START ima_tvos_swift_log_error_handler]
   // MARK: - IMAStreamManagerDelegate
   func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
     print("StreamManager event \(event.typeString).")
@@ -220,6 +242,19 @@ class ViewController:
 
   func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
     print("StreamManager error: \(error.message ?? "Unknown Error")")
+  }
+  // [END ima_tvos_swift_log_error_handler]
+
+  // MARK: - UIFocusEnvironment
+
+  override var preferredFocusEnvironments: [UIFocusEnvironment] {
+    if adBreakActive, let adFocusEnvironment = adDisplayContainer?.focusEnvironment {
+      // Send focus to the ad display container during an ad break.
+      return [adFocusEnvironment]
+    } else {
+      // Send focus to the content player otherwise.
+      return [playerViewController]
+    }
   }
 
   // MARK: - AVPlayerViewControllerDelegate

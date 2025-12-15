@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+// [START ima_tvos_objc_import]
 #import "ViewController.h"
-
 #import <AVKit/AVKit.h>
-#import <MediaPlayer/MediaPlayer.h>
 
 @import GoogleInteractiveMediaAds;
+// [END ima_tvos_objc_import]
 
+// [START ima_tvos_objc_view_controller]
 // Live stream asset key, VOD content source and video IDs, and backup content URL.
 static NSString *const kAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
 static NSString *const kContentSourceID = @"2548831";
@@ -71,7 +72,9 @@ static const StreamType kDefaultStreamType = StreamTypeLive;
   self.playerViewController.view.frame = self.view.bounds;
   [self.playerViewController didMoveToParentViewController:self];
 }
+// [END ima_tvos_objc_view_controller]
 
+// [START ima_tvos_objc_ads_loader]
 - (void)setupAdsLoader {
   self.adsLoader = [[IMAAdsLoader alloc] init];
   self.adsLoader.delegate = self;
@@ -85,7 +88,9 @@ static const StreamType kDefaultStreamType = StreamTypeLive;
   // Keep hidden initially, until an ad break.
   self.adContainerView.hidden = YES;
 }
+// [END ima_tvos_objc_ads_loader]
 
+// [START ima_tvos_objc_request_stream]
 - (void)requestStream {
   self.videoDisplay =
       [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
@@ -125,7 +130,9 @@ static const StreamType kDefaultStreamType = StreamTypeLive;
     [self playBackupStream];
   }
 }
+// [END ima_tvos_objc_request_stream]
 
+// [START ima_tvos_objc_stream_events]
 - (void)playBackupStream {
   NSURL *backupStreamURL = [NSURL URLWithString:kBackupStreamURLString];
   [self.videoDisplay loadStream:backupStreamURL withSubtitles:@[]];
@@ -136,18 +143,6 @@ static const StreamType kDefaultStreamType = StreamTypeLive;
 - (void)startMediaSession {
   [[AVAudioSession sharedInstance] setActive:YES error:nil];
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
-}
-
-#pragma mark - UIFocusEnvironment
-
-- (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
-  if (self.isAdBreakActive && self.adDisplayContainer.focusEnvironment) {
-    // Send focus to the ad display container during an ad break.
-    return @[ self.adDisplayContainer.focusEnvironment ];
-  } else {
-    // Send focus to the content player otherwise.
-    return @[ self.playerViewController ];
-  }
 }
 
 #pragma mark - IMAAdsLoaderDelegate
@@ -165,7 +160,9 @@ static const StreamType kDefaultStreamType = StreamTypeLive;
   NSLog(@"Error loading ads: %@", adErrorData.adError.message);
   [self playBackupStream];
 }
+// [END ima_tvos_objc_stream_events]
 
+// [START ima_tvos_objc_log_error_handler]
 #pragma mark - IMAStreamManagerDelegate
 
 - (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
@@ -216,6 +213,19 @@ static const StreamType kDefaultStreamType = StreamTypeLive;
   // Fall back to playing the backup stream.
   NSLog(@"StreamManager error: %@", error.message);
   [self playBackupStream];
+}
+// [END ima_tvos_objc_log_error_handler]
+
+#pragma mark - UIFocusEnvironment
+
+- (NSArray<id<UIFocusEnvironment>> *)preferredFocusEnvironments {
+  if (self.isAdBreakActive && self.adDisplayContainer.focusEnvironment) {
+    // Send focus to the ad display container during an ad break.
+    return @[ self.adDisplayContainer.focusEnvironment ];
+  } else {
+    // Send focus to the content player otherwise.
+    return @[ self.playerViewController ];
+  }
 }
 
 #pragma mark - AVPlayerViewControllerDelegate
