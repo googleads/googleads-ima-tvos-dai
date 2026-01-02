@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// [START set_up_view_controller]
 import AVFoundation
 import GoogleInteractiveMediaAds
 import UIKit
 
+// The main view controller for the sample app.
 class ViewController:
   UIViewController,
   IMAAdsLoaderDelegate,
@@ -43,7 +46,6 @@ class ViewController:
   }
 
   /// The view to display the ad UI elements: count down, skip button, etc.
-  /// It is hidden when the stream starts playing.
   private var adUIView: UIView!
 
   /// The reference of your ad UI view for the IMA SDK to create the ad's user interface elements.
@@ -67,8 +69,6 @@ class ViewController:
   private var adStreamSessionId: String?
 
   private var playerViewController: AVPlayerViewController!
-  private var userSeekTime = 0.0
-  private var adBreakActive = false
 
   deinit {
     NotificationCenter.default.removeObserver(self)
@@ -116,7 +116,9 @@ class ViewController:
 
     adsLoader.delegate = self
   }
+  // [END set_up_view_controller]
 
+  // [START make_stream_request]
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
 
@@ -148,7 +150,9 @@ class ViewController:
     // Register a streaming session on Google Ad Manager DAI servers.
     adsLoader.requestStream(with: streamRequest)
   }
+  // [END make_stream_request]
 
+  // [START schedule_ad_insertion]
   /// Schedules ad insertion shortly before ad break starts.
   private func scheduleAdInsertion() {
     guard let streamID = self.adStreamSessionId else {
@@ -172,8 +176,7 @@ class ViewController:
     }
 
     let adBreakStartTime = CMTime(
-      seconds: primaryPlayerCurrentItem.currentTime().seconds
-        + Double(secondsToAdBreakStart), preferredTimescale: 1)
+      seconds: player.currentTime().seconds + Double(secondsToAdBreakStart), preferredTimescale: 1)
 
     // Create an identifier to construct the ad pod request for the next ad break.
     let adPodIdentifier = generatePodIdentifier(from: currentSeconds)
@@ -186,7 +189,7 @@ class ViewController:
       )
     else {
       // If URL creation fails, verify that StreamParameters and streamID are not empty.
-      print("Failed to construct ad pod manifest URL. Skipping ad break.")
+      print("Failed to generate the ad pod manifest URL. Skipping insertion of \(adPodIdentifier).")
       return
     }
 
@@ -203,7 +206,9 @@ class ViewController:
       "Ad break scheduled to start in \(secondsToAdBreakStart) seconds. Ad break manifest URL: \(adPodManifestUrl)."
     )
   }
+  // [END schedule_ad_insertion]
 
+  // [START generate_pod_id]
   /// Generates a pod identifier based on the current time.
   ///
   /// See [HLS pod manifest parameters](https://developers.google.com/ad-manager/dynamic-ad-insertion/api/pod-serving/reference/live#path_parameters_3).
@@ -214,7 +219,9 @@ class ViewController:
     let minute = Int(currentSeconds / 60) + 1
     return "ad_break_id/mid-roll-\(minute)"
   }
+  // [END generate_pod_id]
 
+  // [START handle_stream_load_events]
   // MARK: - IMAAdsLoaderDelegate
   func adsLoader(_ loader: IMAAdsLoader, adsLoadedWith adsLoadedData: IMAAdsLoadedData) {
     guard let streamManager = adsLoadedData.streamManager else {
@@ -240,10 +247,10 @@ class ViewController:
     // Save the ad stream session ID to construct ad pod requests.
     adStreamSessionId = streamId
 
-    // At this point the content stream playback started and the DAI stream
-    // session has also started, you can observe the content stream's timed
-    // metadata for ad markers to schedule ad insertion. Alternatively, you
-    // can schedule ad insertion using other data sources or events.
+    // The content stream playback and the DAI stream session already started.
+    // Observe the content stream's timed metadata for ad markers to schedule
+    // ad insertions. Alternatively, use other data sources or events, to
+    // schedule ad insertions.
     //
     // For example, this app schedules an ad break within 2 minutes after
     // the content stream playback starts.
@@ -259,6 +266,16 @@ class ViewController:
   }
 
   // MARK: - IMAStreamManagerDelegate
+  func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
+    guard let errorMessage = error.message else {
+      print("Ad stream failed to load with unknown error.")
+      return
+    }
+    print("Ad stream failed to load with error: \(errorMessage)")
+  }
+  // [END handle_stream_load_events]
+
+  // [START handle_ad_events]
   func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
     switch event.type {
     case IMAAdEventType.STARTED:
@@ -297,12 +314,6 @@ class ViewController:
       break
     }
   }
+  // [END handle_ad_events]
 
-  func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
-    guard let errorMessage = error.message else {
-      print("Ad stream failed to load with unknown error.")
-      return
-    }
-    print("Ad stream failed to load with error: \(errorMessage)")
-  }
 }
