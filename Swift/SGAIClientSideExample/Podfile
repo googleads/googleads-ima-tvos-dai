@@ -1,5 +1,3 @@
-source 'https://github.com/CocoaPods/Specs.git'
-
 platform :tvos, '17'
 project 'SGAIClientSideExample.xcodeproj'
 
