@@ -237,11 +237,13 @@ class ViewController:
     let encodedAuthToken = authToken.addingPercentEncoding(withAllowedCharacters: components) ?? ""
 
     guard
-      let adPodManifestUrl = URL(
-        string:
-          "https://dai.google.com/linear/pods/v1/hls/network/\(StreamParameters.networkCode)/custom_asset/\(StreamParameters.customAssetKey)/\(adPodIdentifier).m3u8?stream_id=\(streamID)&pd=\(StreamParameters.adBreakDurationMs)&auth-token=\(encodedAuthToken)"
-      )
-    else {
+      let adPodManifestUrlString =
+      "https://dai.google.com/linear/pods/v1/hls/network/"
+      + "\(StreamParameters.networkCode)/custom_asset/"
+      + "\(StreamParameters.customAssetKey)/\(adPodIdentifier).m3u8"
+      + "?stream_id=\(streamID)&pd=\(StreamParameters.adBreakDurationMs)"
+
+    guard let adPodManifestUrl = URL(string: adPodManifestUrlString) else {
       // If URL creation fails, verify that StreamParameters and streamID are not empty.
       print("Failed to generate the ad pod manifest URL. Skipping insertion of \(adPodIdentifier).")
       return
