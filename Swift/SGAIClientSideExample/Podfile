@@ -2,5 +2,5 @@ platform :tvos, '17'
 project 'SGAIClientSideExample.xcodeproj'
 
 target "SGAIClientSideExample" do
-  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.16.0'
+  pod 'GoogleAds-IMA-tvOS-SDK', '~> 4.17.0'
 end
