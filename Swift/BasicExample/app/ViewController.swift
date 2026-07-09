@@ -125,13 +125,10 @@ class ViewController:
       adContainer: adContainerView, viewController: self)
     self.adDisplayContainer = adDisplayContainer
 
-    // Variable to hold the specific stream request object.
-    let request: IMAStreamRequest
-
     switch self.currentStreamType {
     case .live:
       // Create a live stream request.
-      request = IMALiveStreamRequest(
+      let request = IMALiveStreamRequest(
         assetKey: ViewController.assetKey,
         networkCode: ViewController.networkCode,
         adDisplayContainer: adDisplayContainer,
@@ -139,10 +136,12 @@ class ViewController:
         pictureInPictureProxy: nil,
         userContext: nil)
       print("IMA: Requesting Live Stream with asset key \(ViewController.assetKey)")
+      request.useHLSInterstitials = true
+      adsLoader.requestStream(with: request)
 
     case .vod:
       // Create a VOD stream request.
-      request = IMAVODStreamRequest(
+      let request = IMAVODStreamRequest(
         contentSourceID: ViewController.contentSourceID,
         videoID: ViewController.videoID,
         networkCode: ViewController.networkCode,
@@ -153,9 +152,8 @@ class ViewController:
       print(
         "IMA: Requesting VOD Stream with content source ID \(ViewController.contentSourceID) and "
           + "video ID \(ViewController.videoID)")
+      adsLoader.requestStream(with: request)
     }
-
-    adsLoader.requestStream(with: request)
   }
   // [END ima_tvos_swift_request_stream]
 

@@ -98,36 +98,31 @@ static const StreamType kDefaultStreamType = StreamTypeLive;
                                                                 viewController:self];
 
   // Use the streamType property to determine which request to create.
-  IMAStreamRequest *request;
-
   switch (self.streamType) {
     case StreamTypeLive: {
-      request = [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
+      IMALiveStreamRequest *request =
+          [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
+                                             networkCode:kNetworkCode
+                                      adDisplayContainer:self.adDisplayContainer
+                                            videoDisplay:self.videoDisplay
+                                             userContext:nil];
+      NSLog(@"IMA: Requesting Live Stream with Asset Key: %@.", kAssetKey);
+      request.useHLSInterstitials = YES;
+      [self.adsLoader requestStreamWithRequest:request];
+      break;
+    }
+    case StreamTypeVOD: {
+      IMAVODStreamRequest *request =
+          [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
+                                                       videoID:kVideoID
                                                    networkCode:kNetworkCode
                                             adDisplayContainer:self.adDisplayContainer
                                                   videoDisplay:self.videoDisplay
                                                    userContext:nil];
-      NSLog(@"IMA: Requesting Live Stream with Asset Key: %@.", kAssetKey);
-      break;
-    }
-    case StreamTypeVOD: {
-      request = [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
-                                                             videoID:kVideoID
-                                                         networkCode:kNetworkCode
-                                                  adDisplayContainer:self.adDisplayContainer
-                                                        videoDisplay:self.videoDisplay
-                                                         userContext:nil];
       NSLog(@"IMA: Requesting VOD Stream with Video ID: %@.", kVideoID);
+      [self.adsLoader requestStreamWithRequest:request];
       break;
     }
-  }
-
-  if (request) {
-    [self.adsLoader requestStreamWithRequest:request];
-  } else {
-    // Fallback or error handling if no request object was created
-    NSLog(@"IMA Error: Could not create stream request for unknown type.");
-    [self playBackupStream];
   }
 }
 // [END ima_tvos_objc_request_stream]
